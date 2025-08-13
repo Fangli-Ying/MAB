@@ -1,0 +1,1169 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.Stochastic Multi-Armed Bandits &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec2';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*" href="lec3.html" />
+    <link rel="prev" title="1. Introduction to Multi-Armed Bandits" href="lec1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec2.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec2.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>2.Stochastic Multi-Armed Bandits</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#session-2-stochastic-multi-armed-bandits">Session 2: Stochastic Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-and-exploitation">Exploration and Exploitation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-concepts-of-multi-armed-bandits">1. Basic Concepts of Multi-armed Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-concepts-cont">1. Basic Concepts (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1. Basic Concepts (Cont.)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bandits-vs-reinforcement-learning">Bandits vs. Reinforcement Learning</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics">2. Probability Basics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition-of-random-experiments">Formal Definition of Random Experiments</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics-cont">2. Probability Basics (Cont.)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#random-variables-distributions">Random Variables &amp; Distributions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition">Formal Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">2. Probability Basics (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">2. Probability Basics (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-bandit-problem-formulations">3. Different Bandit Problem Formulations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-bandit-problem-formulations-cont">3. Different Bandit Problem Formulations (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-stationary-bandits">4. Stochastic Stationary Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-stationary-bandits-cont">4. Stochastic Stationary Bandits (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition-and-decomposition">5. Regret: Definition and Decomposition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">5. Regret Decomposition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-performance">5. Regret Performance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explore-then-commit-etc-algorithm">6. Explore-Then-Commit (ETC) Algorithm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-regret-analysis">6. ETC Regret Analysis</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-exploitation-tradeoff">7. Exploration-Exploitation Tradeoff</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-bound-of-etc-process">Regret Bound of ETC Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#high-probability-bounds">High-Probability Bounds</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Regret Bound of ETC Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-6-1">Theorem 6.1</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-of-etc-policies-m-and-n">Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-parameter-m">Exploration Parameter <span class="math notranslate nohighlight">\(m\)</span></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-regret-of-etc-for-different-m-values">Expected regret of ETC for different <span class="math notranslate nohighlight">\(m\)</span> values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#anytime-policy-and-n">Anytime Policy and <span class="math notranslate nohighlight">\(n\)</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-for-unknown-horizon-the-doubling-trick">ETC for Unknown Horizon: The Doubling Trick</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adapting-explore-then-commit-when-n-is-unknown">Adapting Explore-Then-Commit When <span class="math notranslate nohighlight">\(n\)</span> is Unknown</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-standard-etc-needs-known-n">Problem: Standard ETC Needs Known <span class="math notranslate nohighlight">\(n\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-the-doubling-trick">Solution: The Doubling Trick</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-arm-bandit-k-2">Example: 2-Arm Bandit (<span class="math notranslate nohighlight">\(K=2\)</span>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#why-it-works">Why It Works</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaway">Key Takeaway</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation-of-ucb-policy">Motivation of UCB Policy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#limitation-of-etc">Limitation of ETC</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-idea-optimism-under-uncertainty">UCB Idea: Optimism Under Uncertainty</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Motivation of UCB Policy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-3-ucb-delta">Algorithm 3: UCB(<span class="math notranslate nohighlight">\(\delta\)</span>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-vs-etc">UCB vs ETC</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="stochastic-multi-armed-bandits">
+<h1>2.Stochastic Multi-Armed Bandits<a class="headerlink" href="#stochastic-multi-armed-bandits" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="session-2-stochastic-multi-armed-bandits">
+<h2>Session 2: Stochastic Multi-Armed Bandits<a class="headerlink" href="#session-2-stochastic-multi-armed-bandits" title="Link to this heading">#</a></h2>
+<section id="exploration-and-exploitation">
+<h3>Exploration and Exploitation<a class="headerlink" href="#exploration-and-exploitation" title="Link to this heading">#</a></h3>
+<p>Dr. Fangli Ying<br />
+ECUST Shanghai China
+Email: <a class="reference external" href="mailto:yfangli&#37;&#52;&#48;ecust&#46;edu&#46;cn">yfangli<span>&#64;</span>ecust<span>&#46;</span>edu<span>&#46;</span>cn</a></p>
+<hr class="docutils" />
+</section>
+<section id="table-of-contents">
+<h3>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Basic Concepts of Multi-armed Bandits</p></li>
+<li><p>Probability Basics</p></li>
+<li><p>Different Bandit Problem Formulations</p></li>
+<li><p>Stochastic Stationary Bandits</p></li>
+<li><p>Regret: Definition and Decomposition</p></li>
+<li><p>Explore-Then-Commit (ETC) Algorithm</p></li>
+<li><p>Exploration-Exploitation Tradeoff</p></li>
+<li><p>UCB Motivations</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="basic-concepts-of-multi-armed-bandits">
+<h3>1. Basic Concepts of Multi-armed Bandits<a class="headerlink" href="#basic-concepts-of-multi-armed-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Problem Definition</strong>: A sequential game between a learner and an environment with uncertainty in decision outcomes.</p></li>
+<li><p><strong>Horizon</strong>: The game is played over <span class="math notranslate nohighlight">\(n\)</span> rounds (<span class="math notranslate nohighlight">\(t = 1, 2, \dots, n\)</span>).</p></li>
+<li><p><strong>Actions &amp; Rewards</strong>: In each round <span class="math notranslate nohighlight">\(t\)</span>, the learner chooses an action <span class="math notranslate nohighlight">\(A_t\)</span> from <span class="math notranslate nohighlight">\(k\)</span> possible actions, and receives a random reward <span class="math notranslate nohighlight">\(X_t\)</span>.</p></li>
+<li><p><strong>Objective</strong>: Maximize the cumulative reward:<br />
+$<span class="math notranslate nohighlight">\( \sum_{t=1}^n X_t = X_1 + X_2 + \dots + X_n \)</span>$</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="basic-concepts-cont">
+<h3>1. Basic Concepts (Cont.)<a class="headerlink" href="#basic-concepts-cont" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Regret</strong>: The reward lost by taking suboptimal decisions. Defined as:<br />
+$<span class="math notranslate nohighlight">\( \text{Regret} = \sum_{t=1}^n \mu^* - \sum_{t=1}^n \mu(A_t) \)</span><span class="math notranslate nohighlight">\(  
+where \)</span>\mu^*<span class="math notranslate nohighlight">\( is the largest mean reward among all arms, and \)</span>\mu(a)<span class="math notranslate nohighlight">\( is the mean reward of arm \)</span>a$.</p></li>
+<li><p><strong>Exploration vs. Exploitation</strong>:</p>
+<ul>
+<li><p>Exploration: Gain information by selecting all actions to learn their rewards.</p></li>
+<li><p>Exploitation: Choose the action with the highest observed reward to maximize immediate reward.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="id1">
+<h3>1. Basic Concepts (Cont.)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Key Note</strong>: Multi-armed bandits do not change the environment or reward distributions.</p></li>
+<li><p><strong>Relationships</strong>:</p>
+<ul>
+<li><p>A special case of Reinforcement Learning (RL).</p></li>
+<li><p>Falls under Online Machine Learning (data is obtained on the go).</p></li>
+<li><p>RL differs: Actions may change the environment and reward distributions.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+<section id="bandits-vs-reinforcement-learning">
+<h4>Bandits vs. Reinforcement Learning<a class="headerlink" href="#bandits-vs-reinforcement-learning" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Multi-armed Bandits</strong></p></th>
+<th class="head"><p><strong>Reinforcement Learning</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Static reward distributions</p></td>
+<td><p>Actions change environment</p></td>
+</tr>
+<tr class="row-odd"><td><p>No state transitions</p></td>
+<td><p>Stateful decision processes</p></td>
+</tr>
+<tr class="row-even"><td><p><em>Special case of RL</em></p></td>
+<td><p><em>General framework</em></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Bandits fall under Online ML:</strong> Decisions made sequentially with streaming feedback</p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="probability-basics">
+<h3>2. Probability Basics<a class="headerlink" href="#probability-basics" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Probability Space</strong>: Defined by 3 components:</p>
+<ul>
+<li><p>Sample space <span class="math notranslate nohighlight">\(\Omega\)</span>: Set of all possible outcomes.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\sigma\)</span>-algebra <span class="math notranslate nohighlight">\(\mathcal{F}\)</span>: Collection of subsets of <span class="math notranslate nohighlight">\(\Omega\)</span> (events).</p></li>
+<li><p>Probability measure <span class="math notranslate nohighlight">\(P: \mathcal{F} \to [0,1]\)</span> assigning probabilities to events.</p></li>
+</ul>
+</li>
+<li><p><strong>Example (Coin Toss)</strong>:<br />
+<span class="math notranslate nohighlight">\(\Omega = \{H, T\}\)</span>, <span class="math notranslate nohighlight">\(\mathcal{F} = \{\emptyset, \{H\}, \{T\}, \{H,T\}\}\)</span><br />
+<span class="math notranslate nohighlight">\(P(H) = P(T) = \frac{1}{2}\)</span>, <span class="math notranslate nohighlight">\(P(\emptyset) = 0\)</span>, <span class="math notranslate nohighlight">\(P(\{H,T\}) = 1\)</span></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="formal-definition-of-random-experiments">
+<h2>Formal Definition of Random Experiments<a class="headerlink" href="#formal-definition-of-random-experiments" title="Link to this heading">#</a></h2>
+<p><strong>Sample Space (<span class="math notranslate nohighlight">\(\Omega\)</span>):</strong><br />
+Set of all possible outcomes<br />
+<em>Example: Coin toss → <span class="math notranslate nohighlight">\(\Omega = \{H, T\}\)</span></em></p>
+<p><strong>Event Space (<span class="math notranslate nohighlight">\(\mathcal{F}\)</span>):</strong><br />
+Subsets of <span class="math notranslate nohighlight">\(\Omega\)</span> representing measurable events</p>
+<p><strong>Probability Measure (<span class="math notranslate nohighlight">\(P\)</span>):</strong><br />
+<span class="math notranslate nohighlight">\(P: \mathcal{F} \rightarrow [0,1]\)</span> satisfying:</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(P(\Omega) = 1\)</span></p></li>
+<li><p>Countable additivity</p></li>
+</ol>
+<hr class="docutils" />
+<section id="probability-basics-cont">
+<h3>2. Probability Basics (Cont.)<a class="headerlink" href="#probability-basics-cont" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Independence of Events</strong>: Two events <span class="math notranslate nohighlight">\(E_1, E_2\)</span> are independent if:<br />
+$<span class="math notranslate nohighlight">\( P(E_1 \cap E_2) = P(E_1) \cdot P(E_2) \)</span>$</p></li>
+<li><p><strong>Conditional Probability</strong>: Probability of <span class="math notranslate nohighlight">\(E_1\)</span> given <span class="math notranslate nohighlight">\(E_2\)</span>:<br />
+$<span class="math notranslate nohighlight">\( P(E_1 | E_2) = \frac{P(E_1 \cap E_2)}{P(E_2)} \)</span><span class="math notranslate nohighlight">\(  
+Note: If \)</span>E_1, E_2<span class="math notranslate nohighlight">\( are independent, \)</span>P(E_1 | E_2) = P(E_1)$.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="random-variables-distributions">
+<h2>Random Variables &amp; Distributions<a class="headerlink" href="#random-variables-distributions" title="Link to this heading">#</a></h2>
+<section id="formal-definition">
+<h3>Formal Definition<a class="headerlink" href="#formal-definition" title="Link to this heading">#</a></h3>
+<p><strong>Random Variable:</strong> Function <span class="math notranslate nohighlight">\(X: \Omega \rightarrow \mathbb{R}\)</span><br />
+<em>Assigns numerical values to outcomes</em></p>
+<p><strong>Example (Coin Toss):</strong><br />
+<span class="math notranslate nohighlight">\(X = \begin{cases} 0 &amp; \text{if Tails} \\ 1 &amp; \text{if Heads} \end{cases}, \quad 
+Y = \begin{cases} 5 &amp; \text{if Tails} \\ 10 &amp; \text{if Heads} \end{cases}\)</span></p>
+<hr class="docutils" />
+</section>
+<section id="id2">
+<h3>2. Probability Basics (Cont.)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Random Variable</strong>: A mapping <span class="math notranslate nohighlight">\(X: \Omega \to \mathbb{R}\)</span> assigning a real number to each outcome.</p>
+<ul>
+<li><p><strong>Discrete RV</strong>: Takes countable values. Probability mass function (PMF) <span class="math notranslate nohighlight">\(P(X = x_k) = p_k\)</span>, with <span class="math notranslate nohighlight">\(\sum p_k = 1\)</span>.</p></li>
+<li><p><strong>Continuous RV</strong>: Takes values in an uncountable set (e.g., <span class="math notranslate nohighlight">\([0,1]\)</span>). Probability density function (PDF) <span class="math notranslate nohighlight">\(f_X(x)\)</span>, where <span class="math notranslate nohighlight">\(P(X \in B) = \int_B f_X(x) dx\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="id3">
+<h3>2. Probability Basics (Cont.)<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Expected Value</strong>: For a random variable <span class="math notranslate nohighlight">\(X\)</span>:</p>
+<ul>
+<li><p>Discrete: <span class="math notranslate nohighlight">\(\mathbb{E}[X] = \sum_k x_k \cdot p_k\)</span></p></li>
+<li><p>Continuous: <span class="math notranslate nohighlight">\(\mathbb{E}[X] = \int_{-\infty}^{\infty} x \cdot f_X(x) dx\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Linearity of Expectation</strong>: For random variables <span class="math notranslate nohighlight">\(X_1, X_2, \dots\)</span>:<br />
+$<span class="math notranslate nohighlight">\( \mathbb{E}\left[\sum_{i=1}^{\infty} X_i\right] = \sum_{i=1}^{\infty} \mathbb{E}[X_i] \)</span>$</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="different-bandit-problem-formulations">
+<h3>3. Different Bandit Problem Formulations<a class="headerlink" href="#different-bandit-problem-formulations" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Stationary Bandits</strong>: Reward distributions of actions are fixed over time.</p></li>
+<li><p><strong>Non-stationary (Restless) Bandits</strong>: Reward distributions may change over time (but not based on actions).</p></li>
+<li><p><strong>Structured Bandits</strong>: Known structure in reward distributions:</p>
+<ul>
+<li><p><strong>Linear Bandits</strong>: Reward of action <span class="math notranslate nohighlight">\(a\)</span> is a linear function: <span class="math notranslate nohighlight">\(x_t = f_t(\theta, a)\)</span> with unknown parameter <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+<li><p><strong>Correlated Bandits</strong>: Rewards of different actions are correlated.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="different-bandit-problem-formulations-cont">
+<h3>3. Different Bandit Problem Formulations (Cont.)<a class="headerlink" href="#different-bandit-problem-formulations-cont" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Contextual Bandits</strong>:</p>
+<ul>
+<li><p>Before each round, the learner observes context (e.g., user demographics).</p></li>
+<li><p>Goal: Learn the best action for each context.</p></li>
+<li><p>Application: Personalized recommendations.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="stochastic-stationary-bandits">
+<h3>4. Stochastic Stationary Bandits<a class="headerlink" href="#stochastic-stationary-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Model</strong>:</p>
+<ul>
+<li><p>Set of actions <span class="math notranslate nohighlight">\(A\)</span> with <span class="math notranslate nohighlight">\(|A| = k\)</span>.</p></li>
+<li><p>Each action <span class="math notranslate nohighlight">\(a\)</span> has a reward distribution <span class="math notranslate nohighlight">\(P_a\)</span>.</p></li>
+<li><p>In round <span class="math notranslate nohighlight">\(t\)</span>, learner chooses <span class="math notranslate nohighlight">\(A_t \in A\)</span>, receives <span class="math notranslate nohighlight">\(X_t \sim P_{A_t}\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Goal</strong>: Maximize the expected cumulative reward <span class="math notranslate nohighlight">\(\mathbb{E}[S_n]\)</span>, where <span class="math notranslate nohighlight">\(S_n = \sum_{t=1}^n X_t\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="stochastic-stationary-bandits-cont">
+<h3>4. Stochastic Stationary Bandits (Cont.)<a class="headerlink" href="#stochastic-stationary-bandits-cont" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Environment Class</strong>: Set of all possible reward distributions <span class="math notranslate nohighlight">\(\{P_a: a \in A\}\)</span> (e.g., Bernoulli with unknown <span class="math notranslate nohighlight">\(\mu_a\)</span>).</p></li>
+<li><p><strong>Mean Reward</strong>: For arm <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(\mu_a = \mathbb{E}[X_t | A_t = a]\)</span>.</p>
+<ul>
+<li><p>Discrete case: <span class="math notranslate nohighlight">\(\mu_a = \sum_j j \cdot P(\text{reward from } a = j)\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Best Arm</strong>: Arm with the largest mean reward: <span class="math notranslate nohighlight">\(\arg\max_{a \in A} \mu_a\)</span>, with <span class="math notranslate nohighlight">\(\mu^* = \max_{a \in A} \mu_a\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-definition-and-decomposition">
+<h3>5. Regret: Definition and Decomposition<a class="headerlink" href="#regret-definition-and-decomposition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Regret for Policy <span class="math notranslate nohighlight">\(\pi\)</span></strong>:<br />
+$<span class="math notranslate nohighlight">\( R_n(\pi) = \mathbb{E}\left[\sum_{t=1}^n \mu^* - \sum_{t=1}^n \mu(A_t)\right] \)</span>$<br />
+(Expected difference between optimal cumulative reward and policy’s reward.)</p></li>
+<li><p><strong>Suboptimality Gap</strong>: <span class="math notranslate nohighlight">\(\Delta_a = \mu^* - \mu_a\)</span> (gap between best arm and arm <span class="math notranslate nohighlight">\(a\)</span>; <span class="math notranslate nohighlight">\(\Delta_a = 0\)</span> for best arm).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-decomposition">
+<h3>5. Regret Decomposition<a class="headerlink" href="#regret-decomposition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Let <span class="math notranslate nohighlight">\(T_a(n)\)</span> = number of times arm <span class="math notranslate nohighlight">\(a\)</span> is chosen in first <span class="math notranslate nohighlight">\(n\)</span> rounds.</p></li>
+<li><p>Expected regret decomposition:<br />
+$<span class="math notranslate nohighlight">\( R_n = \sum_{a \in A} \Delta_a \cdot \mathbb{E}[T_a(n)] \)</span>$<br />
+(Weighted sum of expected counts of each arm, weighted by their suboptimality gaps.)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-performance">
+<h3>5. Regret Performance<a class="headerlink" href="#regret-performance" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Sublinear Regret</strong>: <span class="math notranslate nohighlight">\(R_n = o(n)\)</span> (algorithm chooses best action almost always as <span class="math notranslate nohighlight">\(n \to \infty\)</span>).</p></li>
+<li><p><strong>Logarithmic Regret</strong>: <span class="math notranslate nohighlight">\(R_n = O(\log n)\)</span> (optimal in most cases).<br />
+Achieved when <span class="math notranslate nohighlight">\(\mathbb{P}(\text{choosing suboptimal arm in round } t) \propto \frac{1}{t}\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="explore-then-commit-etc-algorithm">
+<h3>6. Explore-Then-Commit (ETC) Algorithm<a class="headerlink" href="#explore-then-commit-etc-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Idea</strong>: Separate exploration and exploitation phases.</p></li>
+<li><p><strong>Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Exploration Phase</strong>: Play each arm a fixed number of times <span class="math notranslate nohighlight">\(m\)</span>.</p></li>
+<li><p><strong>Exploitation Phase</strong>: Commit to the arm with the largest average reward from exploration.</p></li>
+</ol>
+</li>
+<li><p><strong>Example</strong>: With <span class="math notranslate nohighlight">\(k\)</span> arms, each arm is explored <span class="math notranslate nohighlight">\(m\)</span> times. From round <span class="math notranslate nohighlight">\(mk + 1\)</span>, the best observed arm is played.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="etc-regret-analysis">
+<h3>6. ETC Regret Analysis<a class="headerlink" href="#etc-regret-analysis" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Regret During Exploration</strong>:<br />
+$<span class="math notranslate nohighlight">\( \sum_{a \in A} m \cdot \Delta_a \)</span><span class="math notranslate nohighlight">\(  
+(Each arm is chosen \)</span>m<span class="math notranslate nohighlight">\( times; regret per selection is \)</span>\Delta_a$.)</p></li>
+<li><p><strong>Regret During Exploitation</strong>:<br />
+If the wrong arm is chosen, regret is <span class="math notranslate nohighlight">\((n - mk) \cdot \Delta_{\hat{a}}\)</span>, where <span class="math notranslate nohighlight">\(\hat{a}\)</span> is the suboptimal arm selected.</p></li>
+<li><p><strong>Total Expected Regret</strong>: Sum of exploration and exploitation regrets.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="exploration-exploitation-tradeoff">
+<h3>7. Exploration-Exploitation Tradeoff<a class="headerlink" href="#exploration-exploitation-tradeoff" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Exploration</strong>: Necessary to learn reward distributions but incurs regret from suboptimal actions.</p></li>
+<li><p><strong>Exploitation</strong>: Maximizes immediate reward but may miss better arms.</p></li>
+<li><p><strong>ETC Tradeoff</strong>: Choose <span class="math notranslate nohighlight">\(m\)</span> to balance exploration (more <span class="math notranslate nohighlight">\(m\)</span> → better estimates) and exploitation (less <span class="math notranslate nohighlight">\(m\)</span> → fewer suboptimal rounds in exploitation).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-bound-of-etc-process">
+<h3>Regret Bound of ETC Process<a class="headerlink" href="#regret-bound-of-etc-process" title="Link to this heading">#</a></h3>
+<section id="high-probability-bounds">
+<h4>High-Probability Bounds<a class="headerlink" href="#high-probability-bounds" title="Link to this heading">#</a></h4>
+<p>For 1-subgaussian rewards, the empirical mean <span class="math notranslate nohighlight">\(\hat{\mu}_k(m)\)</span> satisfies:
+$<span class="math notranslate nohighlight">\(
+P\left( |\hat{\mu}_k(m) - \mu_k| \geq \epsilon \right) \leq 2 \exp\left( -\frac{m \epsilon^2}{2} \right)
+\)</span>$</p>
+<p>With <span class="math notranslate nohighlight">\(m = \Omega\left( \frac{\log n}{\Delta_k^2} \right)\)</span>, the probability of misidentifying the optimal arm is negligible.</p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="id4">
+<h3>Regret Bound of ETC Process<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="theorem-6-1">
+<h4>Theorem 6.1<a class="headerlink" href="#theorem-6-1" title="Link to this heading">#</a></h4>
+<p>For ETC with <span class="math notranslate nohighlight">\(1 \leq m \leq n/K\)</span> in 1-subgaussian bandits:
+$<span class="math notranslate nohighlight">\(
+R_n \leq C \cdot \sum_{k=1}^K \frac{\log n}{\Delta_k} + O(K m)
+\)</span><span class="math notranslate nohighlight">\(
+where \)</span>C<span class="math notranslate nohighlight">\( is a constant. Optimal \)</span>m$ balances exploration cost and misidentification risk.</p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="variants-of-etc-policies-m-and-n">
+<h3>Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span><a class="headerlink" href="#variants-of-etc-policies-m-and-n" title="Link to this heading">#</a></h3>
+<section id="exploration-parameter-m">
+<h4>Exploration Parameter <span class="math notranslate nohighlight">\(m\)</span><a class="headerlink" href="#exploration-parameter-m" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(m\)</span> controls exploration effort: Larger <span class="math notranslate nohighlight">\(m\)</span> reduces misidentification risk but increases exploration regret.</p></li>
+<li><p>Optimal <span class="math notranslate nohighlight">\(m\)</span> depends on gaps <span class="math notranslate nohighlight">\(\Delta_k\)</span>: <span class="math notranslate nohighlight">\(m = \max\left\{ 1, \frac{\log n}{\Delta_k^2} \right\}\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="expected-regret-of-etc-for-different-m-values">
+<h3>Expected regret of ETC for different <span class="math notranslate nohighlight">\(m\)</span> values<a class="headerlink" href="#expected-regret-of-etc-for-different-m-values" title="Link to this heading">#</a></h3>
+<p><img alt="Expected Regret " src="https://dl.acm.org/cms/attachment/html/10.1145/3672758.3672802/assets/html/images/image55.png" /></p>
+<hr class="docutils" />
+</section>
+<section id="id5">
+<h3>Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span><a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="anytime-policy-and-n">
+<h4>Anytime Policy and <span class="math notranslate nohighlight">\(n\)</span><a class="headerlink" href="#anytime-policy-and-n" title="Link to this heading">#</a></h4>
+<p>For unknown horizon <span class="math notranslate nohighlight">\(n\)</span>, use doubling trick: Phase <span class="math notranslate nohighlight">\(i\)</span> has <span class="math notranslate nohighlight">\(n_i = 2^i\)</span> trials, with <span class="math notranslate nohighlight">\(m_i\)</span> adapted to <span class="math notranslate nohighlight">\(n_i\)</span>. This ensures regret bounds hold for all <span class="math notranslate nohighlight">\(n\)</span>.</p>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="etc-for-unknown-horizon-the-doubling-trick">
+<h2>ETC for Unknown Horizon: The Doubling Trick<a class="headerlink" href="#etc-for-unknown-horizon-the-doubling-trick" title="Link to this heading">#</a></h2>
+<section id="adapting-explore-then-commit-when-n-is-unknown">
+<h3>Adapting Explore-Then-Commit When <span class="math notranslate nohighlight">\(n\)</span> is Unknown<a class="headerlink" href="#adapting-explore-then-commit-when-n-is-unknown" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="problem-standard-etc-needs-known-n">
+<h4>Problem: Standard ETC Needs Known <span class="math notranslate nohighlight">\(n\)</span><a class="headerlink" href="#problem-standard-etc-needs-known-n" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>ETC relies on knowing total rounds <span class="math notranslate nohighlight">\(n\)</span> to set exploration trials <span class="math notranslate nohighlight">\(m\)</span> (e.g., <span class="math notranslate nohighlight">\(m \propto \log n\)</span>)</p></li>
+<li><p><strong>If <span class="math notranslate nohighlight">\(n\)</span> is unknown</strong>:</p>
+<ul>
+<li><p>Too small <span class="math notranslate nohighlight">\(m\)</span> → misidentify optimal arm (high exploitation regret)</p></li>
+<li><p>Too large <span class="math notranslate nohighlight">\(m\)</span> → waste rounds on exploration (high exploration regret)</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="solution-the-doubling-trick">
+<h4>Solution: The Doubling Trick<a class="headerlink" href="#solution-the-doubling-trick" title="Link to this heading">#</a></h4>
+<p>Convert ETC into an <strong>anytime policy</strong> using phases with doubling lengths:</p>
+<ol class="arabic simple">
+<li><p><strong>Phases with Doubling Lengths</strong></p>
+<ul class="simple">
+<li><p>Phase <span class="math notranslate nohighlight">\(i = 1, 2, 3, ...\)</span></p></li>
+<li><p>Trials per phase: <span class="math notranslate nohighlight">\(n_i = 2^i\)</span><br />
+(Phase 1: 2 trials, Phase 2: 4 trials, Phase 3: 8 trials, …)</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+<ol class="arabic simple" start="2">
+<li><p><strong>Adapt Exploration per Phase</strong></p>
+<ul class="simple">
+<li><p>For phase <span class="math notranslate nohighlight">\(i\)</span>, treat <span class="math notranslate nohighlight">\(n_i\)</span> as current guess for <span class="math notranslate nohighlight">\(n\)</span></p></li>
+<li><p>Set <span class="math notranslate nohighlight">\(m_i\)</span> (exploration trials per arm) based on <span class="math notranslate nohighlight">\(n_i\)</span>:<br />
+<span class="math notranslate nohighlight">\(m_i \propto \frac{\log n_i}{\Delta^2}\)</span><br />
+(<span class="math notranslate nohighlight">\(\Delta\)</span> = smallest gap between best and suboptimal arms)</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+<ol class="arabic simple" start="3">
+<li><p><strong>Run Sequential Phases</strong><br />
+In each phase <span class="math notranslate nohighlight">\(i\)</span>:</p>
+<ul class="simple">
+<li><p><strong>Explore</strong>: Try each arm <span class="math notranslate nohighlight">\(m_i\)</span> times</p></li>
+<li><p><strong>Exploit</strong>: Play best observed arm for remaining <span class="math notranslate nohighlight">\(n_i - K \cdot m_i\)</span> trials</p></li>
+<li><p>Continue until experiment stops (unknown <span class="math notranslate nohighlight">\(n\)</span>)</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="example-2-arm-bandit-k-2">
+<h4>Example: 2-Arm Bandit (<span class="math notranslate nohighlight">\(K=2\)</span>)<a class="headerlink" href="#example-2-arm-bandit-k-2" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Phase <span class="math notranslate nohighlight">\(i\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(n_i\)</span> (trials)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(m_i\)</span> (exploration/arm)</p></th>
+<th class="head"><p>Explore Trials</p></th>
+<th class="head"><p>Exploit Trials</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2 (1/arm)</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>2 (1/arm)</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>8</p></td>
+<td><p>2</p></td>
+<td><p>4 (2/arm)</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>If experiment stops after 5 trials: uses Phase 1 (2 trials) + Phase 2 (3 trials)</em></p>
+<hr class="docutils" />
+</section>
+<section id="why-it-works">
+<h4>Why It Works<a class="headerlink" href="#why-it-works" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Guaranteed Calibration</strong>: For any unknown <span class="math notranslate nohighlight">\(n\)</span>, <span class="math notranslate nohighlight">\(n\)</span> falls in phase <span class="math notranslate nohighlight">\(i\)</span> where <span class="math notranslate nohighlight">\(n_i \geq n\)</span></p></li>
+<li><p><strong>Balanced Regret</strong>: <span class="math notranslate nohighlight">\(m_i\)</span> scales with phase length to avoid over/under-exploration</p></li>
+<li><p><strong>Anytime Property</strong>: Works for <em>any stopping time</em> without prior knowledge of <span class="math notranslate nohighlight">\(n\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="key-takeaway">
+<h4>Key Takeaway<a class="headerlink" href="#key-takeaway" title="Link to this heading">#</a></h4>
+<p>The doubling trick transforms ETC into a robust algorithm for unknown horizons by:</p>
+<ul class="simple">
+<li><p>Using adaptive exploration per phase</p></li>
+<li><p>Ensuring regret remains bounded across all possible <span class="math notranslate nohighlight">\(n\)</span></p></li>
+</ul>
+</section>
+</section>
+<section id="motivation-of-ucb-policy">
+<h3>Motivation of UCB Policy<a class="headerlink" href="#motivation-of-ucb-policy" title="Link to this heading">#</a></h3>
+<section id="limitation-of-etc">
+<h4>Limitation of ETC<a class="headerlink" href="#limitation-of-etc" title="Link to this heading">#</a></h4>
+<p>ETC’s fixed exploration phase leads to suboptimal regret for non-stationary or large <span class="math notranslate nohighlight">\(n\)</span>.</p>
+</section>
+<section id="ucb-idea-optimism-under-uncertainty">
+<h4>UCB Idea: Optimism Under Uncertainty<a class="headerlink" href="#ucb-idea-optimism-under-uncertainty" title="Link to this heading">#</a></h4>
+<p>Select the arm with the highest upper confidence bound:
+$<span class="math notranslate nohighlight">\(
+UCB_t(k) = \hat{\mu}_k(t) + \sqrt{\frac{2 \log t}{T_k(t)}}
+\)</span>$</p>
+<ul class="simple">
+<li><p>Balances exploration (uncertain arms with large bounds) and exploitation (high empirical means).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="id6">
+<h3>Motivation of UCB Policy<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="algorithm-3-ucb-delta">
+<h4>Algorithm 3: UCB(<span class="math notranslate nohighlight">\(\delta\)</span>)<a class="headerlink" href="#algorithm-3-ucb-delta" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>For <span class="math notranslate nohighlight">\(t = 1, ..., n\)</span>:</p>
+<ul class="simple">
+<li><p>Choose <span class="math notranslate nohighlight">\(A_t = argmax_k UCB_k(t-1, \delta)\)</span></p></li>
+<li><p>Observe <span class="math notranslate nohighlight">\(X_t\)</span> and update confidence bounds</p></li>
+</ul>
+</li>
+<li><p>End for</p></li>
+</ol>
+<p>UCB adapts to data dynamically, achieving better regret bounds than ETC in many scenarios.</p>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="ucb-vs-etc">
+<h2>UCB vs ETC<a class="headerlink" href="#ucb-vs-etc" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Aspect</p></th>
+<th class="head"><p>ETC</p></th>
+<th class="head"><p>UCB</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Exploration</p></td>
+<td><p>Fixed phase</p></td>
+<td><p>Adaptive (ongoing)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Horizon Requirement</p></td>
+<td><p>Known <span class="math notranslate nohighlight">\(n\)</span></p></td>
+<td><p>Works with unknown <span class="math notranslate nohighlight">\(n\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Regret Bound</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(\sqrt{Kn \log n})\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(O(\sqrt{Kn \log n})\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Flexibility</p></td>
+<td><p>Low (fixed <span class="math notranslate nohighlight">\(m\)</span>)</p></td>
+<td><p>High (adapts to data)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<section id="key-takeaways">
+<h3>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Multi-armed bandits balance exploration (learning) and exploitation (maximizing reward).</p></li>
+<li><p>Regret measures performance against the optimal arm.</p></li>
+<li><p>Different problem formulations (stationary, non-stationary, structured) require tailored algorithms.</p></li>
+<li><p>ETC is a simple algorithm with clear exploration-exploitation separation, achieving sublinear regret.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">1. Introduction to Multi-Armed Bandits</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#session-2-stochastic-multi-armed-bandits">Session 2: Stochastic Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-and-exploitation">Exploration and Exploitation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-concepts-of-multi-armed-bandits">1. Basic Concepts of Multi-armed Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-concepts-cont">1. Basic Concepts (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">1. Basic Concepts (Cont.)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bandits-vs-reinforcement-learning">Bandits vs. Reinforcement Learning</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics">2. Probability Basics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition-of-random-experiments">Formal Definition of Random Experiments</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics-cont">2. Probability Basics (Cont.)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#random-variables-distributions">Random Variables &amp; Distributions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition">Formal Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">2. Probability Basics (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">2. Probability Basics (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-bandit-problem-formulations">3. Different Bandit Problem Formulations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#different-bandit-problem-formulations-cont">3. Different Bandit Problem Formulations (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-stationary-bandits">4. Stochastic Stationary Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-stationary-bandits-cont">4. Stochastic Stationary Bandits (Cont.)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition-and-decomposition">5. Regret: Definition and Decomposition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">5. Regret Decomposition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-performance">5. Regret Performance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explore-then-commit-etc-algorithm">6. Explore-Then-Commit (ETC) Algorithm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-regret-analysis">6. ETC Regret Analysis</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-exploitation-tradeoff">7. Exploration-Exploitation Tradeoff</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-bound-of-etc-process">Regret Bound of ETC Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#high-probability-bounds">High-Probability Bounds</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Regret Bound of ETC Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-6-1">Theorem 6.1</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-of-etc-policies-m-and-n">Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-parameter-m">Exploration Parameter <span class="math notranslate nohighlight">\(m\)</span></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expected-regret-of-etc-for-different-m-values">Expected regret of ETC for different <span class="math notranslate nohighlight">\(m\)</span> values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Variants of ETC Policies: <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(n\)</span></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#anytime-policy-and-n">Anytime Policy and <span class="math notranslate nohighlight">\(n\)</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-for-unknown-horizon-the-doubling-trick">ETC for Unknown Horizon: The Doubling Trick</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adapting-explore-then-commit-when-n-is-unknown">Adapting Explore-Then-Commit When <span class="math notranslate nohighlight">\(n\)</span> is Unknown</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-standard-etc-needs-known-n">Problem: Standard ETC Needs Known <span class="math notranslate nohighlight">\(n\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-the-doubling-trick">Solution: The Doubling Trick</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-arm-bandit-k-2">Example: 2-Arm Bandit (<span class="math notranslate nohighlight">\(K=2\)</span>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#why-it-works">Why It Works</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaway">Key Takeaway</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation-of-ucb-policy">Motivation of UCB Policy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#limitation-of-etc">Limitation of ETC</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-idea-optimism-under-uncertainty">UCB Idea: Optimism Under Uncertainty</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Motivation of UCB Policy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-3-ucb-delta">Algorithm 3: UCB(<span class="math notranslate nohighlight">\(\delta\)</span>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-vs-etc">UCB vs ETC</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

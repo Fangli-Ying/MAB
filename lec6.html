@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Thompson Sampling &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec6';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting" href="lec7.html" />
+    <link rel="prev" title="5. Multi-Armed Bandits with Probing" href="lec5.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec6.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec6.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>6. Thompson Sampling</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-core-concepts-and-algorithms">Multi-armed Bandits: Core Concepts and Algorithms</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamentals-of-multi-armed-bandits">Fundamentals of Multi-armed Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-upper-confidence-bound-algorithm">UCB (Upper Confidence Bound) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-decision-rule">UCB Decision Rule</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-analysis-for-ucb">Regret Analysis for UCB</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb">Asymptotically Optimal UCB</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-learning-framework">Bayesian Learning Framework</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uncertainty-components">Uncertainty Components</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#policy-properties">Policy Properties</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-decision-core-idea">Bayesian Decision Core Idea</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sequential-bayesian-learning">Sequential Bayesian Learning</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thompson-sampling-algorithm">Thompson Sampling Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea">Core Idea</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-steps">Algorithm Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-rule-gaussian-example">Update Rule (Gaussian Example)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-analysis">Performance Analysis</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supplementary-derivations">Supplementary Derivations</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gaussian-sample-mean-properties">Gaussian Sample Mean Properties</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-formula-application">Bayesian Formula Application</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="thompson-sampling">
+<h1>6. Thompson Sampling<a class="headerlink" href="#thompson-sampling" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="multi-armed-bandits-core-concepts-and-algorithms">
+<h2>Multi-armed Bandits: Core Concepts and Algorithms<a class="headerlink" href="#multi-armed-bandits-core-concepts-and-algorithms" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>UCB Algorithm</p></li>
+<li><p>Bayesian Learning Framework</p></li>
+<li><p>Thompson Sampling</p></li>
+</ul>
+<hr class="docutils" />
+<section id="fundamentals-of-multi-armed-bandits">
+<h3>Fundamentals of Multi-armed Bandits<a class="headerlink" href="#fundamentals-of-multi-armed-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Problem Definition</strong>: Sequential decision-making model with multiple “arms” (options/strategies)</p></li>
+<li><p><strong>Goal</strong>: Maximize cumulative reward (or minimize “regret”)</p></li>
+<li><p><strong>Key Challenge</strong>: Exploration-Exploitation Tradeoff</p>
+<ul>
+<li><p>Exploitation: Choose arms with highest observed reward</p></li>
+<li><p>Exploration: Try other arms to gain more information</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="ucb-upper-confidence-bound-algorithm">
+<h3>UCB (Upper Confidence Bound) Algorithm<a class="headerlink" href="#ucb-upper-confidence-bound-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Balances exploration and exploitation using confidence intervals</p></li>
+<li><p>Core idea: Select arm with highest upper confidence bound of reward mean</p>
+<ul>
+<li><p>Considers current average reward (exploitation)</p></li>
+<li><p>Accounts for estimation uncertainty (exploration)</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+<section id="ucb-decision-rule">
+<h4>UCB Decision Rule<a class="headerlink" href="#ucb-decision-rule" title="Link to this heading">#</a></h4>
+<p>At round <span class="math notranslate nohighlight">\(t\)</span>, select arm:
+$<span class="math notranslate nohighlight">\(A_t = \arg\max_i \left( \hat{\mu}_i(t-1) + \sqrt{\frac{4 \log n}{T_i(t-1)}} \right)\)</span>$</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(A_t\)</span>: Selected arm at round <span class="math notranslate nohighlight">\(t\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\hat{\mu}_i(t-1)\)</span>: Average reward of arm <span class="math notranslate nohighlight">\(i\)</span> up to <span class="math notranslate nohighlight">\(t-1\)</span> rounds</p></li>
+<li><p><span class="math notranslate nohighlight">\(T_i(t-1)\)</span>: Number of times arm <span class="math notranslate nohighlight">\(i\)</span> was selected up to <span class="math notranslate nohighlight">\(t-1\)</span> rounds</p></li>
+<li><p><span class="math notranslate nohighlight">\(n\)</span>: Total number of rounds</p></li>
+<li><p>Second term: Uncertainty penalty (larger for less explored arms)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-analysis-for-ucb">
+<h4>Regret Analysis for UCB<a class="headerlink" href="#regret-analysis-for-ucb" title="Link to this heading">#</a></h4>
+<p><strong>Regret</strong> is defined as:
+$<span class="math notranslate nohighlight">\(R(n) = \sum_{t=1}^n (\mu^* - \mu_{A_t})\)</span>$</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mu^*\)</span>: True mean of optimal arm (<span class="math notranslate nohighlight">\(\mu^* = \max_i \mu_i\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu_{A_t}\)</span>: True mean of selected arm at round <span class="math notranslate nohighlight">\(t\)</span></p></li>
+</ul>
+<hr class="docutils" />
+<p>######## Suboptimal Arm Contribution
+For suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> (<span class="math notranslate nohighlight">\(\mu_i &lt; \mu^*\)</span>), define gap <span class="math notranslate nohighlight">\(\Delta_i = \mu^* - \mu_i\)</span></p>
+<p>UCB regret upper bound:
+$<span class="math notranslate nohighlight">\(R(n) \leq \sum_{i: \Delta_i &gt; 0} \frac{16 \log n}{\Delta_i^2}\)</span>$</p>
+<hr class="docutils" />
+<p>######## Bound Justification</p>
+<ul class="simple">
+<li><p>Intuition: Limit selection frequency of suboptimal arms</p></li>
+<li><p>When <span class="math notranslate nohighlight">\(T_i\)</span> (selection count) satisfies:
+$<span class="math notranslate nohighlight">\(2\sqrt{\frac{4 \log n}{T_i}} \leq \Delta_i\)</span>$</p></li>
+<li><p>Suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> will no longer be selected</p></li>
+<li><p>Solving gives <span class="math notranslate nohighlight">\(T_i \leq \frac{16 \log n}{\Delta_i^2}\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="asymptotically-optimal-ucb">
+<h4>Asymptotically Optimal UCB<a class="headerlink" href="#asymptotically-optimal-ucb" title="Link to this heading">#</a></h4>
+<p>For large <span class="math notranslate nohighlight">\(n\)</span>, regret approximates:
+$<span class="math notranslate nohighlight">\(R(n) \approx \sum_{i: \Delta_i &gt; 0} \frac{2 \log n}{\Delta_i^2}\)</span>$</p>
+<ul class="simple">
+<li><p>Achieves theoretical lower bound for multi-armed bandits</p></li>
+<li><p>Near-ideal performance as <span class="math notranslate nohighlight">\(n \to \infty\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="bayesian-learning-framework">
+<h3>Bayesian Learning Framework<a class="headerlink" href="#bayesian-learning-framework" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Contrasts with frequentist UCB approach</p></li>
+<li><p>Models uncertainty through probability distributions</p></li>
+<li><p>Updates beliefs using observed data</p></li>
+<li><p>Selects strategies to minimize expected loss</p></li>
+</ul>
+<hr class="docutils" />
+<section id="uncertainty-components">
+<h4>Uncertainty Components<a class="headerlink" href="#uncertainty-components" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Environment</strong>: Unknown scenario (<span class="math notranslate nohighlight">\(v\)</span>) - e.g., reward distributions of arms</p></li>
+<li><p><strong>Policy</strong>: Decision rule (<span class="math notranslate nohighlight">\(\pi\)</span>) - e.g., arm selection method</p></li>
+<li><p><strong>Loss Function</strong>: Measures policy performance in environment</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="policy-properties">
+<h4>Policy Properties<a class="headerlink" href="#policy-properties" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Dominance</strong>: Policy <span class="math notranslate nohighlight">\(\pi_1\)</span> is dominated by <span class="math notranslate nohighlight">\(\pi_2\)</span> if:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\pi_1\)</span> has greater or equal loss in all environments</p></li>
+<li><p><span class="math notranslate nohighlight">\(\pi_1\)</span> has strictly greater loss in at least one environment</p></li>
+</ul>
+</li>
+<li><p><strong>Admissibility (Pareto Optimality)</strong>:</p>
+<ul>
+<li><p>Not dominated by any other policy</p></li>
+<li><p>Minimizes loss in at least one environment</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="bayesian-decision-core-idea">
+<h4>Bayesian Decision Core Idea<a class="headerlink" href="#bayesian-decision-core-idea" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Prior distribution</strong> <span class="math notranslate nohighlight">\(q(v)\)</span>: Initial belief about environment <span class="math notranslate nohighlight">\(v\)</span></p></li>
+<li><p>Choose policy minimizing expected loss:
+$<span class="math notranslate nohighlight">\(\pi_{\text{Bayes}} = \arg\min_{\pi} \mathbb{E}_v [\text{loss}(\pi, v)]\)</span>$</p></li>
+<li><p>Expectation <span class="math notranslate nohighlight">\(\mathbb{E}_v\)</span> computed using prior <span class="math notranslate nohighlight">\(q(v)\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="sequential-bayesian-learning">
+<h4>Sequential Bayesian Learning<a class="headerlink" href="#sequential-bayesian-learning" title="Link to this heading">#</a></h4>
+<p>Update beliefs after each observation:
+$<span class="math notranslate nohighlight">\(p(v | \text{data}) = \frac{p(\text{data} | v) \cdot q(v)}{p(\text{data})}\)</span>$</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(p(\text{data} | v)\)</span>: Likelihood of data under environment <span class="math notranslate nohighlight">\(v\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(p(\text{data})\)</span>: Total probability (normalization constant)</p></li>
+<li><p>Updates from prior to posterior distribution with new data</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="thompson-sampling-algorithm">
+<h3>Thompson Sampling Algorithm<a class="headerlink" href="#thompson-sampling-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Bayesian approach to multi-armed bandits</p></li>
+<li><p>Achieves exploration-exploitation via stochastic sampling</p></li>
+<li><p>Selects arm with highest sample from posterior distributions</p></li>
+</ul>
+<hr class="docutils" />
+<section id="core-idea">
+<h4>Core Idea<a class="headerlink" href="#core-idea" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Maintain <strong>posterior distribution</strong> <span class="math notranslate nohighlight">\(F_i(t)\)</span> for each arm <span class="math notranslate nohighlight">\(i\)</span>’s mean <span class="math notranslate nohighlight">\(\mu_i\)</span></p></li>
+<li><p>Sample <span class="math notranslate nohighlight">\(\hat{\mu}_i^{(s)}\)</span> from each <span class="math notranslate nohighlight">\(F_i(t)\)</span></p></li>
+<li><p>Select arm with maximum sample: <span class="math notranslate nohighlight">\(A_t = \arg\max_i \hat{\mu}_i^{(s)}\)</span></p></li>
+<li><p>Update posterior of selected arm using observed reward</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="algorithm-steps">
+<h4>Algorithm Steps<a class="headerlink" href="#algorithm-steps" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p><strong>Input</strong>: Prior cumulative distribution functions (CDFs) <span class="math notranslate nohighlight">\(F_i(0)\)</span> for each arm</p></li>
+<li><p>For each round <span class="math notranslate nohighlight">\(t=1,2,...,n\)</span>:</p>
+<ul class="simple">
+<li><p>Sample <span class="math notranslate nohighlight">\(\hat{\mu}_i^{(s)}\)</span> from <span class="math notranslate nohighlight">\(F_i(t-1)\)</span> for each arm <span class="math notranslate nohighlight">\(i\)</span></p></li>
+<li><p>Select <span class="math notranslate nohighlight">\(A_t = \arg\max_i \hat{\mu}_i^{(s)}\)</span></p></li>
+<li><p>Observe reward <span class="math notranslate nohighlight">\(X_t\)</span> and update:
+$<span class="math notranslate nohighlight">\(F_{A_t}(t) = \text{UPDATE}(F_{A_t}(t-1), X_t)\)</span>$</p></li>
+</ul>
+</li>
+<li><p>Repeat until completion</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="update-rule-gaussian-example">
+<h4>Update Rule (Gaussian Example)<a class="headerlink" href="#update-rule-gaussian-example" title="Link to this heading">#</a></h4>
+<p>For rewards ~ <span class="math notranslate nohighlight">\(\mathcal{N}(\mu_i, 1)\)</span>:</p>
+<ul class="simple">
+<li><p>After <span class="math notranslate nohighlight">\(T_i(t)\)</span> selections with rewards <span class="math notranslate nohighlight">\(x_1,...,x_{T_i(t)}\)</span></p></li>
+<li><p>Sample mean: <span class="math notranslate nohighlight">\(\hat{\mu}_i = \frac{1}{T_i(t)} \sum_{k=1}^{T_i(t)} x_k\)</span></p></li>
+<li><p>Posterior distribution: <span class="math notranslate nohighlight">\(\mathcal{N}(\hat{\mu}_i, \frac{1}{T_i(t)})\)</span></p></li>
+<li><p>Variance decreases with more selections (increased certainty)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="performance-analysis">
+<h4>Performance Analysis<a class="headerlink" href="#performance-analysis" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Asymptotic Optimality</strong> in Gaussian bandits:
+$<span class="math notranslate nohighlight">\(R(n) \approx \sum_{i: \Delta_i &gt; 0} \frac{2 \log n}{\Delta_i^2}\)</span>$</p>
+<ul>
+<li><p>Matches theoretical lower bound</p></li>
+</ul>
+</li>
+<li><p><strong>Characteristics</strong>:</p>
+<ul>
+<li><p>Exploration through random sampling</p></li>
+<li><p>Often outperforms UCB in experiments</p></li>
+<li><p>Higher performance variance (more result fluctuation)</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="supplementary-derivations">
+<h3>Supplementary Derivations<a class="headerlink" href="#supplementary-derivations" title="Link to this heading">#</a></h3>
+<section id="gaussian-sample-mean-properties">
+<h4>Gaussian Sample Mean Properties<a class="headerlink" href="#gaussian-sample-mean-properties" title="Link to this heading">#</a></h4>
+<p>For i.i.d. Gaussian variables <span class="math notranslate nohighlight">\(x_1,...,x_t\)</span> ~ <span class="math notranslate nohighlight">\(\mathcal{N}(\mu, \sigma^2)\)</span>:</p>
+<ul class="simple">
+<li><p>Sample mean: <span class="math notranslate nohighlight">\(\hat{\mu}(t) = \frac{x_1+...+x_t}{t}\)</span></p></li>
+<li><p>Expectation: <span class="math notranslate nohighlight">\(\mathbb{E}[\hat{\mu}(t)] = \mu\)</span> (unbiased)</p></li>
+<li><p>Variance: <span class="math notranslate nohighlight">\(\text{Var}(\hat{\mu}(t)) = \frac{\sigma^2}{t}\)</span> (decreases with <span class="math notranslate nohighlight">\(t\)</span>)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="bayesian-formula-application">
+<h4>Bayesian Formula Application<a class="headerlink" href="#bayesian-formula-application" title="Link to this heading">#</a></h4>
+<p><strong>Example</strong>: Bag containing balls (WW or WB)</p>
+<ul class="simple">
+<li><p>Prior: <span class="math notranslate nohighlight">\(P(WW) = P(WB) = 0.5\)</span></p></li>
+<li><p>After observing “white ball”:</p>
+<ul>
+<li><p>Likelihoods: <span class="math notranslate nohighlight">\(P(\text{white}|WW)=1\)</span>, <span class="math notranslate nohighlight">\(P(\text{white}|WB)=0.5\)</span></p></li>
+<li><p>Total probability: <span class="math notranslate nohighlight">\(P(\text{white}) = 0.5 \cdot 1 + 0.5 \cdot 0.5 = 0.75\)</span></p></li>
+<li><p>Posterior: <span class="math notranslate nohighlight">\(P(WW | \text{white}) = \frac{1 \cdot 0.5}{0.75} = \frac{2}{3}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Aspect</p></th>
+<th class="head"><p>UCB Algorithm</p></th>
+<th class="head"><p>Thompson Sampling</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Approach</p></td>
+<td><p>Frequentist (confidence intervals)</p></td>
+<td><p>Bayesian (posterior sampling)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Selection</p></td>
+<td><p>Deterministic (max upper bound)</p></td>
+<td><p>Stochastic (max sample)</p></td>
+</tr>
+<tr class="row-even"><td><p>Regret</p></td>
+<td><p>Provable bounds, stable performance</p></td>
+<td><p>Asymptotically optimal, better average performance</p></td>
+</tr>
+<tr class="row-odd"><td><p>Variance</p></td>
+<td><p>Lower</p></td>
+<td><p>Higher</p></td>
+</tr>
+<tr class="row-even"><td><p>Use Case</p></td>
+<td><p>Stability-critical scenarios</p></td>
+<td><p>Average performance priority</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both balance exploration-exploitation to minimize regret</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec5.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">5. Multi-Armed Bandits with Probing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec7.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-core-concepts-and-algorithms">Multi-armed Bandits: Core Concepts and Algorithms</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamentals-of-multi-armed-bandits">Fundamentals of Multi-armed Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-upper-confidence-bound-algorithm">UCB (Upper Confidence Bound) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-decision-rule">UCB Decision Rule</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-analysis-for-ucb">Regret Analysis for UCB</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb">Asymptotically Optimal UCB</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-learning-framework">Bayesian Learning Framework</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uncertainty-components">Uncertainty Components</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#policy-properties">Policy Properties</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-decision-core-idea">Bayesian Decision Core Idea</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#sequential-bayesian-learning">Sequential Bayesian Learning</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thompson-sampling-algorithm">Thompson Sampling Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea">Core Idea</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-steps">Algorithm Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-rule-gaussian-example">Update Rule (Gaussian Example)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-analysis">Performance Analysis</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supplementary-derivations">Supplementary Derivations</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gaussian-sample-mean-properties">Gaussian Sample Mean Properties</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-formula-application">Bayesian Formula Application</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

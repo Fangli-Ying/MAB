@@ -1,0 +1,743 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec7';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits" href="lec8.html" />
+    <link rel="prev" title="6. Thompson Sampling" href="lec6.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec7.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec7.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-multi-armed-bandits">Stochastic Multi-armed Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classic-multi-armed-bandits-key-definitions">Classic Multi-armed Bandits: Key Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classic-multi-armed-bandits-algorithms-limitation">Classic Multi-armed Bandits: Algorithms &amp; Limitation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-contextual-bandits">Variants: Contextual Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#this-work-structured-bandits">This Work: Structured Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related Work</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-contributions">Main Contributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#competitive-vs-non-competitive-arms">Competitive vs. Non-competitive Arms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-vs-classical-bandits">Performance vs. Classical Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-our-algorithm-any-round-t">Overview of Our Algorithm (Any Round <span class="math notranslate nohighlight">\(t\)</span>)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-s-algorithm-lattimore-and-munos">UCB-S Algorithm [Lattimore and Munos]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-bound-for-ucb-c">Regret Bound for UCB-C</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulations-key-findings">Simulations: Key Findings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiments-on-movielens-dataset">Experiments on MovieLens Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="a-unified-approach-to-translate-classic-bandit-algorithms-to-the-structured-bandit-setting">
+<h1>7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting<a class="headerlink" href="#a-unified-approach-to-translate-classic-bandit-algorithms-to-the-structured-bandit-setting" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="id1">
+<h2>A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>Author： Osman Yağan<br />
+Carnegie Mellon University</p>
+<p>Lecturer: Dr. Fangli Ying</p>
+</section>
+<hr class="docutils" />
+<section id="stochastic-multi-armed-bandits">
+<h2>Stochastic Multi-armed Bandits<a class="headerlink" href="#stochastic-multi-armed-bandits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k\)</span> actions (arms) to choose from in each round <span class="math notranslate nohighlight">\(t=1,2,...,n\)</span></p></li>
+<li><p>Choosing arm <span class="math notranslate nohighlight">\(A_t\)</span> at round <span class="math notranslate nohighlight">\(t\)</span> returns a random reward (follows the reward distribution of <span class="math notranslate nohighlight">\(A_t\)</span>)</p></li>
+<li><p>Reward distributions and mean rewards <span class="math notranslate nohighlight">\(\mu_1, \mu_2, ..., \mu_k\)</span> are unknown</p></li>
+<li><p><strong>Goal</strong>: Maximize Expected Cumulative Reward</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="classic-multi-armed-bandits-key-definitions">
+<h2>Classic Multi-armed Bandits: Key Definitions<a class="headerlink" href="#classic-multi-armed-bandits-key-definitions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Let <span class="math notranslate nohighlight">\(i^* = \arg \max_i \mu_i\)</span> (best arm with largest mean reward)</p></li>
+<li><p>Equivalent Goal: Minimize expected Regret<br />
+<span class="math notranslate nohighlight">\(R_n = \sum_{t=1}^n (\mu_{i^*} - \mu_{A_t}) = \sum_{i=1}^k \Delta_i \cdot E[T_i(n)]\)</span><br />
+where <span class="math notranslate nohighlight">\(\Delta_i = \mu_{i^*} - \mu_i\)</span> (sub-optimality gap), <span class="math notranslate nohighlight">\(T_i(n)\)</span> = mean number of times arm <span class="math notranslate nohighlight">\(i\)</span> is picked over <span class="math notranslate nohighlight">\(n\)</span> rounds</p></li>
+</ul>
+<p><em>Regret = Reward lost by taking suboptimal decisions</em></p>
+</section>
+<hr class="docutils" />
+<section id="classic-multi-armed-bandits-algorithms-limitation">
+<h2>Classic Multi-armed Bandits: Algorithms &amp; Limitation<a class="headerlink" href="#classic-multi-armed-bandits-algorithms-limitation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Algorithms: UCB [Auer et al.], Thompson Sampling [Thompson], KLUCB [Bubeck et al.], etc.</p></li>
+<li><p>Expected Regret: <span class="math notranslate nohighlight">\(R_n = (k-1) \times O(\log n)\)</span> (precisely: <span class="math notranslate nohighlight">\(\sum_{i: \Delta_i &gt; 0} \frac{2 \log n}{\Delta_i}\)</span>)</p></li>
+</ul>
+<p><strong>Limitation</strong>: Rewards assumed to be independent across arms</p>
+<ul class="simple">
+<li><p>Information about an arm is only obtained if it is selected</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="variants-contextual-bandits">
+<h2>Variants: Contextual Bandits<a class="headerlink" href="#variants-contextual-bandits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Each round <span class="math notranslate nohighlight">\(t\)</span>: receive side information (context vector <span class="math notranslate nohighlight">\(\theta\)</span>)</p>
+<ul>
+<li><p>Context carries info about rewards of different actions</p></li>
+<li><p>e.g., age, income, profession, location, app activity</p></li>
+</ul>
+</li>
+<li><p>Mean rewards <span class="math notranslate nohighlight">\(\mu_i(\theta)\)</span> depend on context <span class="math notranslate nohighlight">\(\theta\)</span> (known)</p></li>
+<li><p>Goal: Learn <span class="math notranslate nohighlight">\(\mu_i(\theta)\)</span> as functions of <span class="math notranslate nohighlight">\(\theta\)</span> and choose optimal actions</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="this-work-structured-bandits">
+<h2>This Work: Structured Bandits<a class="headerlink" href="#this-work-structured-bandits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Hidden parameter <span class="math notranslate nohighlight">\(\theta\)</span> (unknown) - common across arms</p></li>
+<li><p>Mean rewards <span class="math notranslate nohighlight">\(\mu_1(\theta), ..., \mu_k(\theta)\)</span>: known functions of <span class="math notranslate nohighlight">\(\theta\)</span></p></li>
+<li><p>Reward of an arm can be inferred <em>without selecting it</em> (via <span class="math notranslate nohighlight">\(\theta\)</span>)</p></li>
+</ul>
+<p><em>Example</em>: <span class="math notranslate nohighlight">\(\theta\)</span> = user attributes (age, occupation); <span class="math notranslate nohighlight">\(\mu_i(\theta)\)</span> = rating of movie genre <span class="math notranslate nohighlight">\(i\)</span> for user with <span class="math notranslate nohighlight">\(\theta\)</span></p>
+</section>
+<hr class="docutils" />
+<section id="related-work">
+<h2>Related Work<a class="headerlink" href="#related-work" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Linear Bandits: <span class="math notranslate nohighlight">\(\mu_i(\theta)\)</span> is linear in <span class="math notranslate nohighlight">\(\theta\)</span></p></li>
+<li><p>Global &amp; Regional Bandits [Atan et al., Wang et al.]: <span class="math notranslate nohighlight">\(\mu_i(\theta)\)</span> is invertible</p></li>
+<li><p>Known conditional reward distributions [Combes et al., 2017]</p></li>
+</ul>
+<p><strong>Closest work</strong>: [Lattimore et al., 2014] - UCB-S algorithm</p>
+<ul class="simple">
+<li><p>Does not assume linearity, invertibility, or known reward distributions</p></li>
+<li><p>Limited to modified UCB scheme</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="main-contributions">
+<h2>Main Contributions<a class="headerlink" href="#main-contributions" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Proposed a class of algorithms for structured setting (no linearity/invertibility assumptions)</p></li>
+<li><p><strong>ALGORITHM-C</strong>: Adapt any classic MAB algorithm (UCB, TS, KL-UCB, etc.) to structured setting</p>
+<ul>
+<li><p>e.g., UCB-C, TS-C, KLUCB-C</p></li>
+</ul>
+</li>
+<li><p>Previous work [Lattimore et al., 2014] only works with modified UCB</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="competitive-vs-non-competitive-arms">
+<h2>Competitive vs. Non-competitive Arms<a class="headerlink" href="#competitive-vs-non-competitive-arms" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Non-competitive arm <span class="math notranslate nohighlight">\(i\)</span></strong>: Can be identified as suboptimal using samples from the best arm <span class="math notranslate nohighlight">\(i^*\)</span><br />
+Formally: For true <span class="math notranslate nohighlight">\(\theta^*\)</span>, <span class="math notranslate nohighlight">\(\exists \epsilon &gt; 0\)</span> s.t. <span class="math notranslate nohighlight">\(\mu_{i^*}(\theta) &gt; \mu_i(\theta) \forall \theta: |\mu_{i^*}(\theta^*) - \mu_{i^*}(\theta)| &lt; \epsilon\)</span></p></li>
+<li><p><strong>Competitive arm <span class="math notranslate nohighlight">\(i\)</span></strong>: Cannot be ruled out as suboptimal without direct sampling</p></li>
+<li><p><span class="math notranslate nohighlight">\(C(\theta^*)\)</span>: Number of competitive arms at true <span class="math notranslate nohighlight">\(\theta^*\)</span></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="performance-vs-classical-bandits">
+<h2>Performance vs. Classical Bandits<a class="headerlink" href="#performance-vs-classical-bandits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Classic algorithms: <span class="math notranslate nohighlight">\(R_n = (k-1) O(\log n)\)</span></p>
+<ul>
+<li><p>Each suboptimal arm is pulled <span class="math notranslate nohighlight">\(O(\log n)\)</span> times</p></li>
+</ul>
+</li>
+<li><p>Our algorithms (UCB-C, TS-C): <span class="math notranslate nohighlight">\(R_n = (C-1) O(\log n) + O(1)\)</span></p>
+<ul>
+<li><p>Non-competitive arms: pulled <span class="math notranslate nohighlight">\(O(1)\)</span> times</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(C=1\)</span>, <span class="math notranslate nohighlight">\(R_n = O(1)\)</span> (constant regret)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="overview-of-our-algorithm-any-round-t">
+<h2>Overview of Our Algorithm (Any Round <span class="math notranslate nohighlight">\(t\)</span>)<a class="headerlink" href="#overview-of-our-algorithm-any-round-t" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Estimate confidence set <span class="math notranslate nohighlight">\(\widehat{\Theta}_t\)</span> for <span class="math notranslate nohighlight">\(\theta^*\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\widehat{\Theta}_t = \{\theta: |\hat{\mu}_k(t) - \mu_k(\theta)| \leq \sqrt{\frac{a \log t}{n_k(t)}} \forall k \in [K]\}\)</span><br />
+where <span class="math notranslate nohighlight">\(\hat{\mu}_k(t)\)</span> = empirical mean of arm <span class="math notranslate nohighlight">\(k\)</span>; <span class="math notranslate nohighlight">\(n_k(t)\)</span> = number of times arm <span class="math notranslate nohighlight">\(k\)</span> is picked by <span class="math notranslate nohighlight">\(t\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Remove <span class="math notranslate nohighlight">\(\widehat{\Theta}_t\)</span>-non-competitive arms</strong></p>
+<ul class="simple">
+<li><p>Focus on arms that could be optimal for some <span class="math notranslate nohighlight">\(\theta \in \widehat{\Theta}_t\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Play <span class="math notranslate nohighlight">\(\widehat{\Theta}_t\)</span>-competitive arms using any classic bandit algorithm</strong></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="ucb-s-algorithm-lattimore-and-munos">
+<h2>UCB-S Algorithm [Lattimore and Munos]<a class="headerlink" href="#ucb-s-algorithm-lattimore-and-munos" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Estimate confidence set <span class="math notranslate nohighlight">\(\widetilde{\Theta}_t\)</span> for <span class="math notranslate nohighlight">\(\theta^*\)</span> (same as step 1 of our algorithm)</p></li>
+<li><p>In round <span class="math notranslate nohighlight">\(t\)</span>, play the arm with the largest <em>most optimistic mean reward</em> in <span class="math notranslate nohighlight">\(\widetilde{\Theta}_t\)</span></p>
+<ul class="simple">
+<li><p>i.e., <span class="math notranslate nohighlight">\(\arg \max_i \sup_{\tilde{\theta} \in \widetilde{\Theta}_t} \mu_i(\tilde{\theta})\)</span></p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Limitation</strong>: Only uses a modified UCB scheme (not flexible to other algorithms)</p>
+</section>
+<hr class="docutils" />
+<section id="regret-bound-for-ucb-c">
+<h2>Regret Bound for UCB-C<a class="headerlink" href="#regret-bound-for-ucb-c" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Theorem 1 (Non-competitive arms)</strong>:<br />
+<span class="math notranslate nohighlight">\(E[T_i(n)] \leq k t_0 + \sum_{t=1}^n 2k t^{1-\alpha} + k^3 \sum_{kt_0}^n 6\left(\frac{t}{k}\right)^{2-\alpha} = O(1)\)</span> (for <span class="math notranslate nohighlight">\(\alpha &gt; 3\)</span>)</p></li>
+<li><p><strong>Theorem 2 (Competitive arms)</strong>:<br />
+<span class="math notranslate nohighlight">\(E[T_i(n)] \leq \frac{8 \alpha \log n}{\Delta_i^2} + \frac{2 \alpha}{\alpha - 2} + \sum_{t=1}^n 2k t^{1-\alpha} = O(\log n)\)</span></p></li>
+<li><p><strong>Overall Regret</strong>: <span class="math notranslate nohighlight">\(E[R_n] \leq (C-1) O(\log n) + O(1)\)</span></p>
+<ul>
+<li><p>If <span class="math notranslate nohighlight">\(C=1\)</span>, <span class="math notranslate nohighlight">\(E[R_n] = O(1)\)</span></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="simulations-key-findings">
+<h2>Simulations: Key Findings<a class="headerlink" href="#simulations-key-findings" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Parameters: <span class="math notranslate nohighlight">\(\theta^* = 0.5, 1.5, 2.6\)</span> with <span class="math notranslate nohighlight">\(C(\theta^*) = 1, 2, 3\)</span> respectively</p></li>
+<li><p>Algorithms compared: UCB, UCB-S, UCB-C, TS-C</p></li>
+</ul>
+<p><strong>Results</strong>:</p>
+<ul class="simple">
+<li><p>TS-C performs best overall</p></li>
+<li><p>UCB-S is too sensitive to <span class="math notranslate nohighlight">\(\theta^*\)</span></p></li>
+<li><p>Our algorithms (UCB-C, TS-C) outperform classic UCB and UCB-S in structured settings</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="experiments-on-movielens-dataset">
+<h2>Experiments on MovieLens Dataset<a class="headerlink" href="#experiments-on-movielens-dataset" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Dataset</strong>: 1M ratings for 3883 movies by 6040 users; 18 genres (arms)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span> = (age, occupation) - user attributes</p></li>
+<li><p>Goal: Recommend optimal movie genre for unknown user types</p></li>
+</ul>
+<p><strong>Results</strong>:</p>
+<ul class="simple">
+<li><p>TS-C consistently achieves the lowest cumulative regret across user types (18-26 college students, 25-34 executives, 45-49 clerical/admin)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="key-takeaways">
+<h2>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>A unified approach to adapt any classic bandit algorithm to structured settings</p></li>
+<li><p>Regret bound: <span class="math notranslate nohighlight">\(O((C-1) \log n)\)</span> where <span class="math notranslate nohighlight">\(C\)</span> = number of competitive arms</p></li>
+<li><p>Non-competitive arms are pulled only <span class="math notranslate nohighlight">\(O(1)\)</span> times</p></li>
+<li><p>TS-C shows superior performance in empirical evaluations</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="q-a">
+<h2>Q&amp;A<a class="headerlink" href="#q-a" title="Link to this heading">#</a></h2>
+<p>Thank you!</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec6.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">6. Thompson Sampling</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec8.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stochastic-multi-armed-bandits">Stochastic Multi-armed Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classic-multi-armed-bandits-key-definitions">Classic Multi-armed Bandits: Key Definitions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classic-multi-armed-bandits-algorithms-limitation">Classic Multi-armed Bandits: Algorithms &amp; Limitation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-contextual-bandits">Variants: Contextual Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#this-work-structured-bandits">This Work: Structured Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-work">Related Work</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-contributions">Main Contributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#competitive-vs-non-competitive-arms">Competitive vs. Non-competitive Arms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-vs-classical-bandits">Performance vs. Classical Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-our-algorithm-any-round-t">Overview of Our Algorithm (Any Round <span class="math notranslate nohighlight">\(t\)</span>)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-s-algorithm-lattimore-and-munos">UCB-S Algorithm [Lattimore and Munos]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-bound-for-ucb-c">Regret Bound for UCB-C</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulations-key-findings">Simulations: Key Findings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiments-on-movielens-dataset">Experiments on MovieLens Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

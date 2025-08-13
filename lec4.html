@@ -1,0 +1,1257 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4. Principles and Performance Comparison of ETC and UCB &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec4';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="5. Multi-Armed Bandits with Probing" href="lec5.html" />
+    <link rel="prev" title="3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*" href="lec3.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec4.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec4.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>4. Principles and Performance Comparison of ETC and UCB</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#i-core-concepts-and-notations">I. Core Concepts and Notations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-symbols">Key Symbols</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ii-etc-explore-then-commit-algorithm">II. ETC (Explore-Then-Commit) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-phases">Two Phases</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-optimal-parameter-m-selection">ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-suboptimality-gap-delta">Single Suboptimality Gap (<span class="math notranslate nohighlight">\(\Delta\)</span>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-deriving-optimal-m-and-regret-single-gap">ETC: Deriving Optimal m and Regret (Single Gap)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-setup">Scenario Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-structure">ETC Structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-consideration">Key Consideration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deriving-optimal-m">Deriving Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-cumulative-regret">Calculating Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">Interpretation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-arms-k-arms">Multiple Arms (<span class="math notranslate nohighlight">\(k\)</span> arms)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-with-multiple-arms-deriving-optimal-m-and-regret">ETC with Multiple Arms: Deriving Optimal m and Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Scenario Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-challenge-with-multiple-arms">Key Challenge with Multiple Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-minimum-squared-gap">Why Minimum Squared Gap?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Deriving Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Calculating Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#substituting-optimal-m">Substituting Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Interpretation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-core-principle">ETC: Core Principle</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iii-ucb-upper-confidence-bound-algorithm">III. UCB (Upper Confidence Bound) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-rule">Decision Rule</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-core-principle-dynamic-confidence-intervals">UCB: Core Principle - Dynamic Confidence Intervals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-stopping-condition-for-suboptimal-arms">UCB: Stopping Condition for Suboptimal Arms</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">UCB: Stopping Condition for Suboptimal Arms</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#principle-and-derivation">Principle and Derivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recall-ucb-basics">Recall UCB Basics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-condition-logic">Stopping Condition Logic</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalence-to-interval-width-condition">Equivalence to Interval Width Condition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-interval-width-gap">Why Interval Width &lt; Gap?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selection-count-t-i-approx-16-log-n-delta-i-2">Selection Count <span class="math notranslate nohighlight">\(T_i \approx 16\log n / \Delta_i^2\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iv-regret-analysis">IV. Regret Analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-regret-bound">UCB Regret Bound</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recall-ucb-s-core-components">Recall UCB’s Core Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-contribution-of-a-suboptimal-arm">Regret Contribution of a Suboptimal Arm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-t-i-for-ucb">Bounding <span class="math notranslate nohighlight">\(T_i\)</span> for UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-regret-for-one-suboptimal-arm">Calculating Regret for One Suboptimal Arm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-factor-32">Why the Factor 32?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#total-cumulative-regret">Total Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-comparison-etc-vs-ucb">Regret Comparison: ETC vs. UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v-improved-ucb-asymptotically-optimal-ucb">V. Improved UCB: Asymptotically Optimal UCB</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#original-ucb-vs-asymptotically-optimal-ucb">Original UCB vs. Asymptotically Optimal UCB</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#principle-and-derivation-comparison">Principle and Derivation Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#original-ucb-core-principles">1. Original UCB: Core Principles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb-motivation">2. Asymptotically Optimal UCB: Motivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb-modified-exploration-bonus">3. Asymptotically Optimal UCB: Modified Exploration Bonus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#derivation-of-the-exploration-bonus">4. Derivation of the Exploration Bonus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#near-optimal-regret-bound">5. Near-Optimal Regret Bound</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-differences-summary">6. Key Differences Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#significance-of-asymptotic-optimality">7. Significance of Asymptotic Optimality</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vi-key-conclusions">VI. Key Conclusions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="principles-and-performance-comparison-of-etc-and-ucb">
+<h1>4. Principles and Performance Comparison of ETC and UCB<a class="headerlink" href="#principles-and-performance-comparison-of-etc-and-ucb" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Core Concepts and Notations</p></li>
+<li><p>ETC (Explore-Then-Commit) Algorithm</p></li>
+<li><p>UCB (Upper Confidence Bound) Algorithm</p></li>
+<li><p>Regret Analysis</p></li>
+<li><p>Improved UCB: Asymptotically Optimal UCB</p></li>
+<li><p>Key Conclusions</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="i-core-concepts-and-notations">
+<h2>I. Core Concepts and Notations<a class="headerlink" href="#i-core-concepts-and-notations" title="Link to this heading">#</a></h2>
+<section id="key-symbols">
+<h3>Key Symbols<a class="headerlink" href="#key-symbols" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Suboptimality Gap</strong> (<span class="math notranslate nohighlight">\(\Delta_i\)</span>): <span class="math notranslate nohighlight">\(\Delta_i = \mu^* - \mu_i\)</span>, where <span class="math notranslate nohighlight">\(\mu^*\)</span> is the optimal mean reward, and <span class="math notranslate nohighlight">\(\mu_i\)</span> is the mean reward of arm <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p><strong>Horizon</strong> (<span class="math notranslate nohighlight">\(n\)</span>): Total number of rounds the algorithm runs.</p></li>
+<li><p><strong>Cumulative Regret</strong> (<span class="math notranslate nohighlight">\(R_n\)</span>): <span class="math notranslate nohighlight">\(R_n = \sum (\text{Losses from choosing suboptimal arms})\)</span></p></li>
+<li><p><strong>Exploration vs. Exploitation</strong>: Fundamental trade-off between gathering information (exploration) and maximizing immediate reward (exploitation).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="ii-etc-explore-then-commit-algorithm">
+<h2>II. ETC (Explore-Then-Commit) Algorithm<a class="headerlink" href="#ii-etc-explore-then-commit-algorithm" title="Link to this heading">#</a></h2>
+<section id="two-phases">
+<h3>Two Phases<a class="headerlink" href="#two-phases" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Exploration Phase</strong>: First <span class="math notranslate nohighlight">\(m\)</span> rounds, each arm is sampled <span class="math notranslate nohighlight">\(m\)</span> times.</p></li>
+<li><p><strong>Exploitation Phase</strong>: In remaining rounds, only the best-performing arm from exploration is chosen.</p></li>
+</ol>
+<p><em>Core challenge: Determining the optimal exploration count <span class="math notranslate nohighlight">\(m\)</span>.</em></p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="etc-optimal-parameter-m-selection">
+<h2>ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection<a class="headerlink" href="#etc-optimal-parameter-m-selection" title="Link to this heading">#</a></h2>
+<section id="single-suboptimality-gap-delta">
+<h3>Single Suboptimality Gap (<span class="math notranslate nohighlight">\(\Delta\)</span>)<a class="headerlink" href="#single-suboptimality-gap-delta" title="Link to this heading">#</a></h3>
+<ul>
+<li><p>When there’s only one suboptimal arm (gap = <span class="math notranslate nohighlight">\(\Delta\)</span>):</p>
+<p>Optimal exploration count:
+$<span class="math notranslate nohighlight">\( m = \frac{4\log n}{\Delta^2} \)</span>$</p>
+<p>Corresponding cumulative regret:
+$<span class="math notranslate nohighlight">\( R_n = \frac{4}{\Delta}\log n \)</span>$</p>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="etc-deriving-optimal-m-and-regret-single-gap">
+<h2>ETC: Deriving Optimal m and Regret (Single Gap)<a class="headerlink" href="#etc-deriving-optimal-m-and-regret-single-gap" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="scenario-setup">
+<h3>Scenario Setup<a class="headerlink" href="#scenario-setup" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>2-armed bandit problem:</p>
+<ul>
+<li><p>1 optimal arm with mean reward <span class="math notranslate nohighlight">\(\mu^*\)</span></p></li>
+<li><p>1 suboptimal arm with mean reward <span class="math notranslate nohighlight">\(\mu\)</span></p></li>
+<li><p>Suboptimality gap: <span class="math notranslate nohighlight">\(\Delta = \mu^* - \mu\)</span></p></li>
+<li><p>Total rounds (horizon): <span class="math notranslate nohighlight">\(n\)</span></p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="etc-structure">
+<h3>ETC Structure<a class="headerlink" href="#etc-structure" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Exploration phase</strong>: <span class="math notranslate nohighlight">\(2m\)</span> rounds (each arm sampled <span class="math notranslate nohighlight">\(m\)</span> times)</p></li>
+<li><p><strong>Exploitation phase</strong>: Remaining <span class="math notranslate nohighlight">\(n - 2m\)</span> rounds (choose best arm from exploration)</p></li>
+</ul>
+<p><em>Goal: Choose <span class="math notranslate nohighlight">\(m\)</span> to minimize cumulative regret <span class="math notranslate nohighlight">\(R_n\)</span></em></p>
+<hr class="docutils" />
+</section>
+<section id="key-consideration">
+<h3>Key Consideration<a class="headerlink" href="#key-consideration" title="Link to this heading">#</a></h3>
+<p>Probability of misidentifying the optimal arm during exploration must be small.</p>
+<ul class="simple">
+<li><p>Using concentration inequalities (e.g., Hoeffding’s):</p>
+<ul>
+<li><p>Need enough samples (<span class="math notranslate nohighlight">\(m\)</span>) to distinguish <span class="math notranslate nohighlight">\(\mu^*\)</span> from <span class="math notranslate nohighlight">\(\mu\)</span></p></li>
+<li><p>Larger <span class="math notranslate nohighlight">\(\Delta\)</span>: Easier to distinguish (smaller <span class="math notranslate nohighlight">\(m\)</span> needed)</p></li>
+<li><p>Larger <span class="math notranslate nohighlight">\(n\)</span>: Need more exploration to keep misidentification probability low</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="deriving-optimal-m">
+<h3>Deriving Optimal m<a class="headerlink" href="#deriving-optimal-m" title="Link to this heading">#</a></h3>
+<p>To ensure misidentification probability is negligible (order <span class="math notranslate nohighlight">\(1/n\)</span>):</p>
+<ul class="simple">
+<li><p>Mathematical derivation shows <span class="math notranslate nohighlight">\(m\)</span> must scale with:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\log n\)</span> (to control probability over horizon)</p></li>
+<li><p><span class="math notranslate nohighlight">\(1/\Delta^2\)</span> (inverse square of gap, as larger gaps need fewer samples)</p></li>
+</ul>
+</li>
+</ul>
+<p>Result: Optimal exploration count
+$<span class="math notranslate nohighlight">\( m = \frac{4\log n}{\Delta^2} \)</span>$</p>
+<hr class="docutils" />
+</section>
+<section id="calculating-cumulative-regret">
+<h3>Calculating Cumulative Regret<a class="headerlink" href="#calculating-cumulative-regret" title="Link to this heading">#</a></h3>
+<p>With optimal <span class="math notranslate nohighlight">\(m\)</span>, correct identification is highly likely:</p>
+<ul class="simple">
+<li><p>Regret comes primarily from exploration phase</p></li>
+<li><p>We sample the suboptimal arm <span class="math notranslate nohighlight">\(m\)</span> times</p></li>
+<li><p>Each such sample incurs loss <span class="math notranslate nohighlight">\(\Delta\)</span></p></li>
+</ul>
+<p>Total regret: <span class="math notranslate nohighlight">\(R_n = m \cdot \Delta\)</span></p>
+<p>Substituting <span class="math notranslate nohighlight">\(m\)</span>:
+$<span class="math notranslate nohighlight">\( R_n = \frac{4\log n}{\Delta^2} \cdot \Delta = \frac{4}{\Delta}\log n \)</span>$</p>
+<hr class="docutils" />
+</section>
+<section id="interpretation">
+<h3>Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Regret grows logarithmically with horizon <span class="math notranslate nohighlight">\(n\)</span> (favorable scaling)</p></li>
+<li><p>Regret decreases as gap <span class="math notranslate nohighlight">\(\Delta\)</span> increases (intuitive: easier to find optimal arm)</p></li>
+<li><p>The factor of 4 comes from concentration inequality constants</p></li>
+<li></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="id1">
+<h3>ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="multiple-arms-k-arms">
+<h4>Multiple Arms (<span class="math notranslate nohighlight">\(k\)</span> arms)<a class="headerlink" href="#multiple-arms-k-arms" title="Link to this heading">#</a></h4>
+<ul>
+<li><p>With suboptimality gaps <span class="math notranslate nohighlight">\(\Delta_1, \Delta_2, ..., \Delta_k\)</span>:</p>
+<p>Optimal exploration count considers the minimum squared gap:
+$<span class="math notranslate nohighlight">\( m = \left\lceil \frac{4}{\min_{j \neq i} \Delta_j^2} \right\rceil \)</span>$</p>
+<p>Cumulative regret as sum of individual contributions:
+$<span class="math notranslate nohighlight">\( R_n = \sum_{\substack{i=1 \\ i \neq *}}^k \left( \frac{4\log n}{\min_{j \neq i} \Delta_j^2} \right) \cdot \Delta_i \)</span>$</p>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="etc-with-multiple-arms-deriving-optimal-m-and-regret">
+<h2>ETC with Multiple Arms: Deriving Optimal m and Regret<a class="headerlink" href="#etc-with-multiple-arms-deriving-optimal-m-and-regret" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="id2">
+<h3>Scenario Setup<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(k\)</span> armed bandit problem</p></li>
+<li><p>One optimal arm with mean reward <span class="math notranslate nohighlight">\(\mu^*\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(k-1\)</span> suboptimal arms with mean rewards <span class="math notranslate nohighlight">\(\mu_1, \mu_2, ..., \mu_{k-1}\)</span></p></li>
+<li><p>Suboptimality gaps: <span class="math notranslate nohighlight">\(\Delta_i = \mu^* - \mu_i\)</span> for each suboptimal arm <span class="math notranslate nohighlight">\(i\)</span></p></li>
+<li><p>Horizon (total rounds): <span class="math notranslate nohighlight">\(n\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="key-challenge-with-multiple-arms">
+<h3>Key Challenge with Multiple Arms<a class="headerlink" href="#key-challenge-with-multiple-arms" title="Link to this heading">#</a></h3>
+<p>Need to ensure we correctly identify the optimal arm during exploration.</p>
+<ul class="simple">
+<li><p>For <span class="math notranslate nohighlight">\(k\)</span> arms, exploration phase requires <span class="math notranslate nohighlight">\(k \cdot m\)</span> rounds (each arm sampled <span class="math notranslate nohighlight">\(m\)</span> times)</p></li>
+<li><p>Critical risk: Any suboptimal arm could be mistakenly identified as optimal if under-explored</p></li>
+<li><p>Smallest gap <span class="math notranslate nohighlight">\(\Delta_{\text{min}} = \min(\Delta_1, \Delta_2, ..., \Delta_{k-1})\)</span> creates highest risk of misidentification</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="why-minimum-squared-gap">
+<h3>Why Minimum Squared Gap?<a class="headerlink" href="#why-minimum-squared-gap" title="Link to this heading">#</a></h3>
+<p>The smallest gap <span class="math notranslate nohighlight">\(\Delta_{\text{min}}\)</span> determines required exploration:</p>
+<ul class="simple">
+<li><p>Arms with smaller <span class="math notranslate nohighlight">\(\Delta_i\)</span> are harder to distinguish from the optimal arm</p></li>
+<li><p>Mathematically: Probability of misidentification depends on <span class="math notranslate nohighlight">\(m \cdot \Delta_i^2\)</span></p></li>
+<li><p>To ensure all suboptimal arms are correctly identified, we must satisfy the most stringent condition (smallest <span class="math notranslate nohighlight">\(\Delta_i\)</span>)</p></li>
+</ul>
+<p>Thus: <span class="math notranslate nohighlight">\(\Delta_{\text{min}}^2 = \min(\Delta_1^2, \Delta_2^2, ..., \Delta_{k-1}^2)\)</span></p>
+<hr class="docutils" />
+</section>
+<section id="id3">
+<h3>Deriving Optimal m<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>Using concentration inequalities (e.g., Hoeffding’s) to bound misidentification probability:</p>
+<ul class="simple">
+<li><p>For reliable identification of all suboptimal arms, <span class="math notranslate nohighlight">\(m\)</span> must satisfy:
+$<span class="math notranslate nohighlight">\( m \cdot \Delta_{\text{min}}^2 \geq 4\log n \)</span>$</p></li>
+<li><p>Rearranging gives the minimum required <span class="math notranslate nohighlight">\(m\)</span>:
+$<span class="math notranslate nohighlight">\( m = \left\lceil \frac{4}{\Delta_{\text{min}}^2} \right\rceil \)</span>$</p></li>
+<li><p>The ceiling function ensures <span class="math notranslate nohighlight">\(m\)</span> is an integer (cannot sample a fraction of rounds)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="id4">
+<h3>Calculating Cumulative Regret<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>Regret comes from two sources:</p>
+<ol class="arabic simple">
+<li><p><strong>Exploration phase</strong>: Each suboptimal arm is sampled <span class="math notranslate nohighlight">\(m\)</span> times, contributing <span class="math notranslate nohighlight">\(m \cdot \Delta_i\)</span> per arm</p></li>
+<li><p><strong>Exploitation phase</strong>: Negligible if optimal arm is correctly identified (highly likely with proper <span class="math notranslate nohighlight">\(m\)</span>)</p></li>
+</ol>
+<p>Total regret is sum of exploration losses across all suboptimal arms:
+$<span class="math notranslate nohighlight">\( R_n = \sum_{\substack{i=1 \\ i \neq *}}^{k-1} m \cdot \Delta_i \)</span>$</p>
+<hr class="docutils" />
+</section>
+<section id="substituting-optimal-m">
+<h3>Substituting Optimal m<a class="headerlink" href="#substituting-optimal-m" title="Link to this heading">#</a></h3>
+<p>Substitute <span class="math notranslate nohighlight">\(m = \frac{4}{\Delta_{\text{min}}^2}\)</span> into the regret formula:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} R_n = \sum_{\substack{i=1 \\ i \neq *}}^{k-1} \left( \frac{4}{\Delta_{\text{min}}^2} \right) \cdot \Delta_i \end{split}\]</div>
+<p>With logarithmic factor (to control probability over horizon <span class="math notranslate nohighlight">\(n\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} R_n = \sum_{\substack{i=1 \\ i \neq *}}^{k-1} \left( \frac{4\log n}{\Delta_{\text{min}}^2} \right) \cdot \Delta_i \end{split}\]</div>
+<hr class="docutils" />
+</section>
+<section id="id5">
+<h3>Interpretation<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The smallest gap <span class="math notranslate nohighlight">\(\Delta_{\text{min}}\)</span> dominates both <span class="math notranslate nohighlight">\(m\)</span> and total regret</p></li>
+<li><p>Arms with larger <span class="math notranslate nohighlight">\(\Delta_i\)</span> contribute less to regret but still require exploration determined by <span class="math notranslate nohighlight">\(\Delta_{\text{min}}\)</span></p></li>
+<li><p>Regret grows with <span class="math notranslate nohighlight">\(k\)</span> (more suboptimal arms) and <span class="math notranslate nohighlight">\(\log n\)</span> (horizon), but decreases with larger gaps</p></li>
+</ul>
+<p><em>This formulation ensures all suboptimal arms are properly identified while minimizing total regret.</em></p>
+<hr class="docutils" />
+</section>
+<section id="etc-core-principle">
+<h3>ETC: Core Principle<a class="headerlink" href="#etc-core-principle" title="Link to this heading">#</a></h3>
+<p>Performance heavily depends on <span class="math notranslate nohighlight">\(m\)</span>:</p>
+<ul class="simple">
+<li><p>Too small <span class="math notranslate nohighlight">\(m\)</span>: Insufficient exploration (misidentifying the optimal arm)</p></li>
+<li><p>Too large <span class="math notranslate nohighlight">\(m\)</span>: Wasted rounds (increased regret)</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(m\)</span> must be optimized based on <span class="math notranslate nohighlight">\(\Delta\)</span> and <span class="math notranslate nohighlight">\(n\)</span>.</p>
+<hr class="docutils" />
+</section>
+<section id="iii-ucb-upper-confidence-bound-algorithm">
+<h3>III. UCB (Upper Confidence Bound) Algorithm<a class="headerlink" href="#iii-ucb-upper-confidence-bound-algorithm" title="Link to this heading">#</a></h3>
+<section id="decision-rule">
+<h4>Decision Rule<a class="headerlink" href="#decision-rule" title="Link to this heading">#</a></h4>
+<p>At round <span class="math notranslate nohighlight">\(t\)</span>, select arm <span class="math notranslate nohighlight">\(A_t\)</span>:
+$<span class="math notranslate nohighlight">\( A_t = \arg\max_i \left( \hat{\mu}_i(t-1) + \sqrt{\frac{4}{T_i(t-1)} \cdot \log t} \right) \)</span>$</p>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\hat{\mu}_i(t-1)\)</span>: Sample mean reward of arm <span class="math notranslate nohighlight">\(i\)</span> up to round <span class="math notranslate nohighlight">\(t-1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(T_i(t-1)\)</span>: Number of times arm <span class="math notranslate nohighlight">\(i\)</span> has been selected up to round <span class="math notranslate nohighlight">\(t-1\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="ucb-core-principle-dynamic-confidence-intervals">
+<h3>UCB: Core Principle - Dynamic Confidence Intervals<a class="headerlink" href="#ucb-core-principle-dynamic-confidence-intervals" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Each arm’s true mean <span class="math notranslate nohighlight">\(\mu_i\)</span> is enclosed in a confidence interval</p></li>
+<li><p>Interval width shrinks as sample count <span class="math notranslate nohighlight">\(T_i\)</span> increases (more samples → more accurate estimates)</p></li>
+<li><p>Optimal arm’s UCB converges to its true mean <span class="math notranslate nohighlight">\(\mu^*\)</span></p></li>
+<li><p>Suboptimal arms’ UCBs eventually fall below the optimal arm’s lower bound</p></li>
+</ul>
+<p><em>Balances exploration (uncertain arms get higher weights) and exploitation (high mean arms preferred) dynamically.</em></p>
+<hr class="docutils" />
+</section>
+<section id="ucb-stopping-condition-for-suboptimal-arms">
+<h3>UCB: Stopping Condition for Suboptimal Arms<a class="headerlink" href="#ucb-stopping-condition-for-suboptimal-arms" title="Link to this heading">#</a></h3>
+<p>A suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> stops being selected when:
+$<span class="math notranslate nohighlight">\( \text{UCB}_i \leq \text{LCB}_* \quad \Leftrightarrow \quad \text{UCB}_i - \text{LCB}_i \leq \Delta_i \)</span>$</p>
+<p>When the interval width of arm <span class="math notranslate nohighlight">\(i\)</span> is less than its suboptimality gap <span class="math notranslate nohighlight">\(\Delta_i\)</span>, the algorithm is “confident” it’s suboptimal.</p>
+<ul class="simple">
+<li><p>Corresponding selection count: <span class="math notranslate nohighlight">\(T_i \approx 16\log n / \Delta_i^2\)</span></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>UCB: Stopping Condition for Suboptimal Arms<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="principle-and-derivation">
+<h3>Principle and Derivation<a class="headerlink" href="#principle-and-derivation" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+</section>
+<section id="recall-ucb-basics">
+<h3>Recall UCB Basics<a class="headerlink" href="#recall-ucb-basics" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>UCB (Upper Confidence Bound) algorithm selects arms based on:
+$<span class="math notranslate nohighlight">\( \text{UCB}_i(t) = \hat{\mu}_i(t) + \sqrt{\frac{4 \log t}{T_i(t)}} \)</span>$</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\hat{\mu}_i(t)\)</span>: Sample mean of arm <span class="math notranslate nohighlight">\(i\)</span> after <span class="math notranslate nohighlight">\(t\)</span> rounds</p></li>
+<li><p><span class="math notranslate nohighlight">\(T_i(t)\)</span>: Number of times arm <span class="math notranslate nohighlight">\(i\)</span> has been selected by round <span class="math notranslate nohighlight">\(t\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\sqrt{\frac{4 \log t}{T_i(t)}}\)</span>: Confidence interval width (exploration bonus)</p></li>
+</ul>
+</li>
+<li><p>LCB (Lower Confidence Bound) for the optimal arm <span class="math notranslate nohighlight">\(*\)</span>:
+$<span class="math notranslate nohighlight">\( \text{LCB}_*(t) = \hat{\mu}_*(t) - \sqrt{\frac{4 \log t}{T_*(t)}} \)</span>$</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="stopping-condition-logic">
+<h3>Stopping Condition Logic<a class="headerlink" href="#stopping-condition-logic" title="Link to this heading">#</a></h3>
+<p>A suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> stops being selected when:
+$<span class="math notranslate nohighlight">\( \text{UCB}_i \leq \text{LCB}_* \)</span>$</p>
+<p><strong>Intuition</strong>:</p>
+<ul class="simple">
+<li><p>The upper bound of arm <span class="math notranslate nohighlight">\(i\)</span> (best-case scenario for <span class="math notranslate nohighlight">\(i\)</span>) is no better than the lower bound of the optimal arm <span class="math notranslate nohighlight">\(*\)</span> (worst-case scenario for <span class="math notranslate nohighlight">\(*\)</span>).</p></li>
+<li><p>At this point, we are “confident” that arm <span class="math notranslate nohighlight">\(i\)</span> is suboptimal and will never select it again.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="equivalence-to-interval-width-condition">
+<h3>Equivalence to Interval Width Condition<a class="headerlink" href="#equivalence-to-interval-width-condition" title="Link to this heading">#</a></h3>
+<p>The stopping condition <span class="math notranslate nohighlight">\(\text{UCB}_i \leq \text{LCB}_*\)</span> can be rewritten as:
+$<span class="math notranslate nohighlight">\( \text{UCB}_i - \text{LCB}_i \leq \Delta_i \)</span>$</p>
+<p><strong>Derivation</strong>:</p>
+<ol class="arabic simple">
+<li><p>Start with <span class="math notranslate nohighlight">\(\text{UCB}_i \leq \text{LCB}_*\)</span></p></li>
+<li><p>Substitute definitions:
+$<span class="math notranslate nohighlight">\( \hat{\mu}_i + \sqrt{\frac{4 \log t}{T_i}} \leq \hat{\mu}_* - \sqrt{\frac{4 \log t}{T_*}} \)</span>$</p></li>
+</ol>
+<hr class="docutils" />
+<ol class="arabic simple" start="3">
+<li><p>Rearrange using <span class="math notranslate nohighlight">\(\Delta_i = \mu_* - \mu_i\)</span> (true gap) and approximate <span class="math notranslate nohighlight">\(\hat{\mu}_* - \hat{\mu}_i \approx \Delta_i\)</span> (for large <span class="math notranslate nohighlight">\(T_i, T_*\)</span>):
+$<span class="math notranslate nohighlight">\( \sqrt{\frac{4 \log t}{T_i}} + \sqrt{\frac{4 \log t}{T_*}} \leq \Delta_i \)</span>$</p></li>
+<li><p>For simplicity, assume <span class="math notranslate nohighlight">\(T_i \approx T_*\)</span> (balanced sampling), so:
+$<span class="math notranslate nohighlight">\( 2\sqrt{\frac{4 \log t}{T_i}} \leq \Delta_i \implies \text{UCB}_i - \text{LCB}_i \leq \Delta_i \)</span>$</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="why-interval-width-gap">
+<h3>Why Interval Width &lt; Gap?<a class="headerlink" href="#why-interval-width-gap" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The interval width for arm <span class="math notranslate nohighlight">\(i\)</span> is <span class="math notranslate nohighlight">\(\text{UCB}_i - \text{LCB}_i = 2\sqrt{\frac{4 \log t}{T_i}} = \sqrt{\frac{16 \log t}{T_i}}\)</span></p></li>
+<li><p>When this width is smaller than <span class="math notranslate nohighlight">\(\Delta_i\)</span>, the true mean of <span class="math notranslate nohighlight">\(i\)</span> (<span class="math notranslate nohighlight">\(\mu_i\)</span>) must be less than the true mean of <span class="math notranslate nohighlight">\(*\)</span> (<span class="math notranslate nohighlight">\(\mu_*\)</span>):
+$<span class="math notranslate nohighlight">\( \mu_i + (\text{width}/2) &lt; \mu_* - (\text{width}/2) \implies \mu_i &lt; \mu_* - \text{width} &lt; \mu_* - \Delta_i + \mu_i \implies \mu_* &gt; \mu_i \)</span>$</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="selection-count-t-i-approx-16-log-n-delta-i-2">
+<h3>Selection Count <span class="math notranslate nohighlight">\(T_i \approx 16\log n / \Delta_i^2\)</span><a class="headerlink" href="#selection-count-t-i-approx-16-log-n-delta-i-2" title="Link to this heading">#</a></h3>
+<p>To find when the interval width is less than <span class="math notranslate nohighlight">\(\Delta_i\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Set <span class="math notranslate nohighlight">\(\sqrt{\frac{16 \log n}{T_i}} \leq \Delta_i\)</span> (using horizon <span class="math notranslate nohighlight">\(n\)</span> as <span class="math notranslate nohighlight">\(t \approx n\)</span>)</p></li>
+<li><p>Square both sides: <span class="math notranslate nohighlight">\(\frac{16 \log n}{T_i} \leq \Delta_i^2\)</span></p></li>
+<li><p>Rearrange: <span class="math notranslate nohighlight">\(T_i \geq \frac{16 \log n}{\Delta_i^2}\)</span></p></li>
+</ol>
+<p><strong>Meaning</strong>: Arm <span class="math notranslate nohighlight">\(i\)</span> needs to be sampled at least <span class="math notranslate nohighlight">\(16\log n / \Delta_i^2\)</span> times to ensure its interval width is smaller than <span class="math notranslate nohighlight">\(\Delta_i\)</span>, after which it stops being selected.</p>
+<hr class="docutils" />
+</section>
+<section id="key-takeaways">
+<h3>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Stopping condition ensures suboptimal arms are permanently discarded once we’re confident they’re worse than the best arm.</p></li>
+<li><p>The interval width shrinks as <span class="math notranslate nohighlight">\(T_i\)</span> increases (more samples → more precision).</p></li>
+<li><p>The required number of samples <span class="math notranslate nohighlight">\(T_i\)</span> depends on <span class="math notranslate nohighlight">\(\Delta_i\)</span> (smaller gaps need more samples) and <span class="math notranslate nohighlight">\(n\)</span> (larger horizons need more samples to maintain confidence).</p></li>
+<li><p>This balances exploration (sampling uncertain arms) and exploitation (focusing on proven good arms).</p></li>
+<li></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="iv-regret-analysis">
+<h3>IV. Regret Analysis<a class="headerlink" href="#iv-regret-analysis" title="Link to this heading">#</a></h3>
+<p><strong>Cumulative Regret (<span class="math notranslate nohighlight">\(R_n\)</span>)</strong>: Measures total loss compared to “always choosing the optimal arm”.</p>
+<section id="ucb-regret-bound">
+<h4>UCB Regret Bound<a class="headerlink" href="#ucb-regret-bound" title="Link to this heading">#</a></h4>
+<p>With <span class="math notranslate nohighlight">\(\delta = 1/n^2\)</span> (confidence control):
+$<span class="math notranslate nohighlight">\( R_n \leq \sum_{\text{suboptimal } i} \frac{32\log n}{\Delta_i} \)</span>$</p>
+<ul class="simple">
+<li><p>Smaller <span class="math notranslate nohighlight">\(\Delta_i\)</span> → larger regret (harder to identify suboptimality)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="recall-ucb-s-core-components">
+<h3>Recall UCB’s Core Components<a class="headerlink" href="#recall-ucb-s-core-components" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>UCB selects arms using the index:<br />
+$<span class="math notranslate nohighlight">\( \text{UCB}_i(t) = \hat{\mu}_i(t) + \sqrt{\frac{4 \log t}{T_i(t)}} \)</span><span class="math notranslate nohighlight">\(  
+where \)</span>T_i(t)<span class="math notranslate nohighlight">\( is the number of times arm \)</span>i<span class="math notranslate nohighlight">\( has been selected by round \)</span>t$.</p></li>
+<li><p>A suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> stops being selected when its interval width is smaller than its gap <span class="math notranslate nohighlight">\(\Delta_i\)</span>:<br />
+$<span class="math notranslate nohighlight">\( \text{UCB}_i - \text{LCB}_i \leq \Delta_i \)</span>$</p></li>
+<li><p>This occurs when <span class="math notranslate nohighlight">\(T_i \approx \frac{16 \log n}{\Delta_i^2}\)</span> (from earlier stopping condition).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-contribution-of-a-suboptimal-arm">
+<h3>Regret Contribution of a Suboptimal Arm<a class="headerlink" href="#regret-contribution-of-a-suboptimal-arm" title="Link to this heading">#</a></h3>
+<p>For a suboptimal arm <span class="math notranslate nohighlight">\(i\)</span> with gap <span class="math notranslate nohighlight">\(\Delta_i\)</span>, its total regret contribution comes from:<br />
+<strong>Number of times it is selected</strong> × <strong>Per-selection loss (<span class="math notranslate nohighlight">\(\Delta_i\)</span>)</strong>.</p>
+<ul class="simple">
+<li><p>Let <span class="math notranslate nohighlight">\(T_i\)</span> be the total selections of arm <span class="math notranslate nohighlight">\(i\)</span> by horizon <span class="math notranslate nohighlight">\(n\)</span>.</p></li>
+<li><p>Regret from arm <span class="math notranslate nohighlight">\(i\)</span>: <span class="math notranslate nohighlight">\(R_i = T_i \cdot \Delta_i\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="bounding-t-i-for-ucb">
+<h3>Bounding <span class="math notranslate nohighlight">\(T_i\)</span> for UCB<a class="headerlink" href="#bounding-t-i-for-ucb" title="Link to this heading">#</a></h3>
+<p>To derive the regret bound, we first bound <span class="math notranslate nohighlight">\(T_i\)</span> (selections of suboptimal arm <span class="math notranslate nohighlight">\(i\)</span>):</p>
+<ol class="arabic">
+<li><p>From the stopping condition, arm <span class="math notranslate nohighlight">\(i\)</span> stops being selected when:<br />
+$<span class="math notranslate nohighlight">\( \sqrt{\frac{16 \log n}{T_i}} \leq \Delta_i \)</span>$</p></li>
+<li><p>Rearranging gives the maximum <span class="math notranslate nohighlight">\(T_i\)</span> needed to satisfy the condition:<br />
+$<span class="math notranslate nohighlight">\( T_i \leq \frac{16 \log n}{\Delta_i^2} \)</span>$</p>
+<p><em>This is the upper bound on how many times arm <span class="math notranslate nohighlight">\(i\)</span> is selected.</em></p>
+</li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="calculating-regret-for-one-suboptimal-arm">
+<h3>Calculating Regret for One Suboptimal Arm<a class="headerlink" href="#calculating-regret-for-one-suboptimal-arm" title="Link to this heading">#</a></h3>
+<p>Substitute <span class="math notranslate nohighlight">\(T_i \leq \frac{16 \log n}{\Delta_i^2}\)</span> into the regret formula for arm <span class="math notranslate nohighlight">\(i\)</span>:<br />
+$<span class="math notranslate nohighlight">\( R_i = T_i \cdot \Delta_i \leq \frac{16 \log n}{\Delta_i^2} \cdot \Delta_i = \frac{16 \log n}{\Delta_i} \)</span>$</p>
+<p><em>This is the regret contribution from a single suboptimal arm.</em></p>
+<hr class="docutils" />
+</section>
+<section id="why-the-factor-32">
+<h3>Why the Factor 32?<a class="headerlink" href="#why-the-factor-32" title="Link to this heading">#</a></h3>
+<p>The 32 comes from <strong>conservative confidence bounds</strong> and <strong>probability union bounds</strong>:</p>
+<ol class="arabic simple">
+<li><p>UCB uses a confidence parameter <span class="math notranslate nohighlight">\(\delta = 1/n^2\)</span> to control the probability of misestimation across all rounds and arms.</p></li>
+<li><p>To ensure the bound holds with high probability (e.g., <span class="math notranslate nohighlight">\(1 - 1/n\)</span>), we multiply by a safety factor of 2.</p></li>
+<li><p>This accounts for worst-case scenarios in concentration inequalities (e.g., Hoeffding’s inequality constants) and union bounds over multiple arms/rounds.</p></li>
+</ol>
+<p>Result: <span class="math notranslate nohighlight">\(16 \times 2 = 32\)</span></p>
+<hr class="docutils" />
+</section>
+<section id="total-cumulative-regret">
+<h3>Total Cumulative Regret<a class="headerlink" href="#total-cumulative-regret" title="Link to this heading">#</a></h3>
+<p>Summing over all suboptimal arms, the total regret bound becomes:<br />
+$<span class="math notranslate nohighlight">\( R_n = \sum_{\text{suboptimal } i} R_i \leq \sum_{\text{suboptimal } i} \frac{32 \log n}{\Delta_i} \)</span>$</p>
+<hr class="docutils" />
+</section>
+<section id="id7">
+<h3>Key Takeaways<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The 32 is a conservative constant derived from:</p>
+<ul>
+<li><p>16 (from the interval width condition for stopping selections)</p></li>
+<li><p>×2 (to account for confidence bounds and union probabilities with <span class="math notranslate nohighlight">\(\delta = 1/n^2\)</span>).</p></li>
+</ul>
+</li>
+<li><p>Smaller <span class="math notranslate nohighlight">\(\Delta_i\)</span> leads to larger regret because:</p>
+<ul>
+<li><p>Arms with smaller gaps require more samples (<span class="math notranslate nohighlight">\(T_i \propto 1/\Delta_i^2\)</span>) to be confidently identified as suboptimal.</p></li>
+<li><p>Each selection of such arms incurs a loss proportional to <span class="math notranslate nohighlight">\(\Delta_i\)</span>, leading to <span class="math notranslate nohighlight">\(R_i \propto 1/\Delta_i\)</span>.</p></li>
+</ul>
+</li>
+<li></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="regret-comparison-etc-vs-ucb">
+<h3>Regret Comparison: ETC vs. UCB<a class="headerlink" href="#regret-comparison-etc-vs-ucb" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Aspect</p></th>
+<th class="head"><p>ETC</p></th>
+<th class="head"><p>UCB</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Advantages</strong></p></td>
+<td><p>Slightly lower regret for <span class="math notranslate nohighlight">\(k=2\)</span> with known <span class="math notranslate nohighlight">\(\Delta\)</span></p></td>
+<td><p>No prior knowledge of <span class="math notranslate nohighlight">\(\Delta\)</span> needed; Better performance for <span class="math notranslate nohighlight">\(k&gt;2\)</span> or small <span class="math notranslate nohighlight">\(\Delta_i\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Limitations</strong></p></td>
+<td><p>Relies on knowing <span class="math notranslate nohighlight">\(\Delta\)</span>; Poor adaptation to multiple small gaps</p></td>
+<td><p>Slightly higher regret than optimally tuned ETC in simple cases (<span class="math notranslate nohighlight">\(k=2\)</span>, known <span class="math notranslate nohighlight">\(\Delta\)</span>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+</section>
+<section id="v-improved-ucb-asymptotically-optimal-ucb">
+<h3>V. Improved UCB: Asymptotically Optimal UCB<a class="headerlink" href="#v-improved-ucb-asymptotically-optimal-ucb" title="Link to this heading">#</a></h3>
+<p>Original UCB requires prior knowledge of <span class="math notranslate nohighlight">\(n\)</span>. <strong>Asymptotically optimal UCB</strong> solves this, becoming an “anytime algorithm”:</p>
+<ul class="simple">
+<li><p>Exploration bonus modified to:
+$<span class="math notranslate nohighlight">\( \text{UCB Index} = \hat{\mu}_i(t-1) + \sqrt{\frac{2\log(f(t))}{T_i(t-1)}} \quad \text{where} \quad f(t) = 1 + t\log^2(t) \)</span>$</p></li>
+<li><p>Achieves near-optimal regret bound:
+$<span class="math notranslate nohighlight">\( \limsup_{n \to \infty} \frac{R_n}{\sum \frac{2\log n}{\Delta_i}} \leq 1 \)</span>$</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="original-ucb-vs-asymptotically-optimal-ucb">
+<h2>Original UCB vs. Asymptotically Optimal UCB<a class="headerlink" href="#original-ucb-vs-asymptotically-optimal-ucb" title="Link to this heading">#</a></h2>
+<section id="principle-and-derivation-comparison">
+<h3>Principle and Derivation Comparison<a class="headerlink" href="#principle-and-derivation-comparison" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+</section>
+<section id="original-ucb-core-principles">
+<h3>1. Original UCB: Core Principles<a class="headerlink" href="#original-ucb-core-principles" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Decision Rule</strong>: Selects arm with highest upper confidence bound at each round:
+$<span class="math notranslate nohighlight">\( \text{UCB}_i(t) = \hat{\mu}_i(t-1) + \sqrt{\frac{4\log t}{T_i(t-1)}} \)</span>$</p></li>
+<li><p><strong>Key Limitation</strong>: Relies on knowing the total horizon <span class="math notranslate nohighlight">\(n\)</span> in advance (needed to set confidence bounds for regret guarantees).</p></li>
+<li><p><strong>Exploration Bonus</strong>: Scales with <span class="math notranslate nohighlight">\(\log t\)</span>, where <span class="math notranslate nohighlight">\(t\)</span> is the current round, but tied to the fixed horizon <span class="math notranslate nohighlight">\(n\)</span> for regret analysis.</p></li>
+<li><p><strong>Regret Bound</strong>: <span class="math notranslate nohighlight">\( R_n \leq \sum_{\text{suboptimal } i} \frac{32\log n}{\Delta_i} \)</span> (constant factor 32, dependent on <span class="math notranslate nohighlight">\(n\)</span>).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="asymptotically-optimal-ucb-motivation">
+<h3>2. Asymptotically Optimal UCB: Motivation<a class="headerlink" href="#asymptotically-optimal-ucb-motivation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Problem with Original UCB</strong>: Requires prior knowledge of <span class="math notranslate nohighlight">\(n\)</span> (total rounds), making it unsuitable for “anytime” scenarios (unknown horizon).</p></li>
+<li><p><strong>Goal</strong>: Design an algorithm that works without knowing <span class="math notranslate nohighlight">\(n\)</span> in advance and achieves near-optimal regret as <span class="math notranslate nohighlight">\(n \to \infty\)</span>.</p></li>
+<li><p><strong>Intuition</strong>: Adjust the exploration bonus to grow appropriately with <span class="math notranslate nohighlight">\(t\)</span> (current round) instead of relying on <span class="math notranslate nohighlight">\(n\)</span>, ensuring robustness to unknown horizons.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="asymptotically-optimal-ucb-modified-exploration-bonus">
+<h3>3. Asymptotically Optimal UCB: Modified Exploration Bonus<a class="headerlink" href="#asymptotically-optimal-ucb-modified-exploration-bonus" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>New UCB Index</strong>:
+$<span class="math notranslate nohighlight">\( \text{UCB Index} = \hat{\mu}_i(t-1) + \sqrt{\frac{2\log(f(t))}{T_i(t-1)}} \)</span><span class="math notranslate nohighlight">\(
+Where \)</span><span class="math notranslate nohighlight">\( f(t) = 1 + t\log^2(t) \)</span><span class="math notranslate nohighlight">\( (a function growing with \)</span>t<span class="math notranslate nohighlight">\( to replace fixed \)</span>n$).</p></li>
+<li><p><strong>Why This Form?</strong>:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(f(t)\)</span> ensures the exploration bonus shrinks at the right rate: fast enough to avoid excessive exploration, slow enough to guarantee identification of optimal arms.</p></li>
+<li><p>The coefficient 2 replaces 4 from original UCB, tightening the bound asymptotically.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="derivation-of-the-exploration-bonus">
+<h3>4. Derivation of the Exploration Bonus<a class="headerlink" href="#derivation-of-the-exploration-bonus" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Confidence Interval Adjustment</strong>: Uses concentration inequalities (e.g., Hoeffding) with a time-dependent confidence level. For unknown <span class="math notranslate nohighlight">\(n\)</span>, the failure probability for each round <span class="math notranslate nohighlight">\(t\)</span> is bounded by <span class="math notranslate nohighlight">\(1/t^2\)</span> (instead of <span class="math notranslate nohighlight">\(1/n^2\)</span> in original UCB).</p></li>
+<li><p><strong>Summing Failures</strong>: By the union bound, the total failure probability over all rounds is bounded (since <span class="math notranslate nohighlight">\(\sum 1/t^2\)</span> converges).</p></li>
+<li><p><strong>Resulting Bonus</strong>: The term <span class="math notranslate nohighlight">\(\log(f(t))\)</span> emerges from balancing the need to control cumulative failure probability while avoiding over-exploration.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="near-optimal-regret-bound">
+<h3>5. Near-Optimal Regret Bound<a class="headerlink" href="#near-optimal-regret-bound" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Asymptotic Regret</strong>:
+$<span class="math notranslate nohighlight">\( \limsup_{n \to \infty} \frac{R_n}{\sum \frac{2\log n}{\Delta_i}} \leq 1 \)</span>$</p></li>
+<li><p><strong>Interpretation</strong>:</p>
+<ul>
+<li><p>As <span class="math notranslate nohighlight">\(n\)</span> becomes very large, the regret of the improved UCB is at most the “ideal” regret (scaling with <span class="math notranslate nohighlight">\(\sum \frac{2\log n}{\Delta_i}\)</span>).</p></li>
+<li><p>The constant factor approaches 1, making it asymptotically optimal (original UCB has a larger constant like 32).</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="key-differences-summary">
+<h3>6. Key Differences Summary<a class="headerlink" href="#key-differences-summary" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Aspect</p></th>
+<th class="head"><p>Original UCB</p></th>
+<th class="head"><p>Asymptotically Optimal UCB</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Horizon Requirement</strong></p></td>
+<td><p>Needs prior knowledge of <span class="math notranslate nohighlight">\(n\)</span></p></td>
+<td><p>Works with unknown <span class="math notranslate nohighlight">\(n\)</span> (anytime)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Exploration Bonus</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\sqrt{\frac{4\log t}{T_i}}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(\sqrt{\frac{2\log(f(t))}{T_i}}\)</span> where <span class="math notranslate nohighlight">\(f(t)=1+t\log^2(t)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Regret Constant</strong></p></td>
+<td><p>32 (conservative)</p></td>
+<td><p>Approaches 1 asymptotically</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Use Case</strong></p></td>
+<td><p>Known horizon scenarios</p></td>
+<td><p>Unknown horizon, large <span class="math notranslate nohighlight">\(n\)</span> scenarios</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+</section>
+<section id="significance-of-asymptotic-optimality">
+<h3>7. Significance of Asymptotic Optimality<a class="headerlink" href="#significance-of-asymptotic-optimality" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Eliminates the need for tuning based on <span class="math notranslate nohighlight">\(n\)</span>, making it more practical for real-world problems (e.g., online recommendation systems, A/B testing with variable duration).</p></li>
+<li><p>Achieves the best possible regret scaling as <span class="math notranslate nohighlight">\(n\)</span> grows, matching the theoretical lower bound for multi-armed bandits (up to a constant factor).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="vi-key-conclusions">
+<h3>VI. Key Conclusions<a class="headerlink" href="#vi-key-conclusions" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>ETC</strong>: Suitable for scenarios with known <span class="math notranslate nohighlight">\(\Delta\)</span> and few arms (<span class="math notranslate nohighlight">\(k=2\)</span>); Requires precise tuning of <span class="math notranslate nohighlight">\(m\)</span>.</p></li>
+<li><p><strong>UCB</strong>: Better for unknown <span class="math notranslate nohighlight">\(\Delta\)</span>, multiple arms (<span class="math notranslate nohighlight">\(k&gt;2\)</span>), or small suboptimality gaps; More robust and widely used in practice.</p></li>
+<li><p><strong>Exploration-Exploitation Balance</strong>: UCB achieves dynamic balance via confidence intervals, while ETC uses fixed exploration—making UCB more adaptable to complex scenarios.</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="q-a">
+<h2>Q&amp;A<a class="headerlink" href="#q-a" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec3.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec5.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">5. Multi-Armed Bandits with Probing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#i-core-concepts-and-notations">I. Core Concepts and Notations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-symbols">Key Symbols</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ii-etc-explore-then-commit-algorithm">II. ETC (Explore-Then-Commit) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-phases">Two Phases</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-optimal-parameter-m-selection">ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-suboptimality-gap-delta">Single Suboptimality Gap (<span class="math notranslate nohighlight">\(\Delta\)</span>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-deriving-optimal-m-and-regret-single-gap">ETC: Deriving Optimal m and Regret (Single Gap)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-setup">Scenario Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-structure">ETC Structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-consideration">Key Consideration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deriving-optimal-m">Deriving Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-cumulative-regret">Calculating Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">Interpretation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ETC: Optimal Parameter <span class="math notranslate nohighlight">\(m\)</span> Selection</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-arms-k-arms">Multiple Arms (<span class="math notranslate nohighlight">\(k\)</span> arms)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-with-multiple-arms-deriving-optimal-m-and-regret">ETC with Multiple Arms: Deriving Optimal m and Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Scenario Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-challenge-with-multiple-arms">Key Challenge with Multiple Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-minimum-squared-gap">Why Minimum Squared Gap?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Deriving Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Calculating Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#substituting-optimal-m">Substituting Optimal m</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Interpretation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#etc-core-principle">ETC: Core Principle</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iii-ucb-upper-confidence-bound-algorithm">III. UCB (Upper Confidence Bound) Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-rule">Decision Rule</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-core-principle-dynamic-confidence-intervals">UCB: Core Principle - Dynamic Confidence Intervals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-stopping-condition-for-suboptimal-arms">UCB: Stopping Condition for Suboptimal Arms</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">UCB: Stopping Condition for Suboptimal Arms</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#principle-and-derivation">Principle and Derivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recall-ucb-basics">Recall UCB Basics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stopping-condition-logic">Stopping Condition Logic</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalence-to-interval-width-condition">Equivalence to Interval Width Condition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-interval-width-gap">Why Interval Width &lt; Gap?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selection-count-t-i-approx-16-log-n-delta-i-2">Selection Count <span class="math notranslate nohighlight">\(T_i \approx 16\log n / \Delta_i^2\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iv-regret-analysis">IV. Regret Analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-regret-bound">UCB Regret Bound</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recall-ucb-s-core-components">Recall UCB’s Core Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-contribution-of-a-suboptimal-arm">Regret Contribution of a Suboptimal Arm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-t-i-for-ucb">Bounding <span class="math notranslate nohighlight">\(T_i\)</span> for UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-regret-for-one-suboptimal-arm">Calculating Regret for One Suboptimal Arm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-factor-32">Why the Factor 32?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#total-cumulative-regret">Total Cumulative Regret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-comparison-etc-vs-ucb">Regret Comparison: ETC vs. UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v-improved-ucb-asymptotically-optimal-ucb">V. Improved UCB: Asymptotically Optimal UCB</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#original-ucb-vs-asymptotically-optimal-ucb">Original UCB vs. Asymptotically Optimal UCB</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#principle-and-derivation-comparison">Principle and Derivation Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#original-ucb-core-principles">1. Original UCB: Core Principles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb-motivation">2. Asymptotically Optimal UCB: Motivation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#asymptotically-optimal-ucb-modified-exploration-bonus">3. Asymptotically Optimal UCB: Modified Exploration Bonus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#derivation-of-the-exploration-bonus">4. Derivation of the Exploration Bonus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#near-optimal-regret-bound">5. Near-Optimal Regret Bound</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-differences-summary">6. Key Differences Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#significance-of-asymptotic-optimality">7. Significance of Asymptotic Optimality</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vi-key-conclusions">VI. Key Conclusions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

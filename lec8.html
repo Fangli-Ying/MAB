@@ -1,0 +1,1071 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec8';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting" href="lec7.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec8.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec8.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>8. Full Feedback and Adversarial Costs & Adversarial Bandits</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-key-algorithms-for-stochastic-bandits">Recap: Key Algorithms for Stochastic Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-upper-confidence-bound">UCB (Upper Confidence Bound)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea-optimism-in-the-face-of-uncertainty">Core Idea: “Optimism in the Face of Uncertainty”</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-continued">UCB (Continued)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#strengths">Strengths</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ts-thompson-sampling">TS (Thompson Sampling)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea-bayesian-sampling">Core Idea: “Bayesian Sampling”</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ts-continued">TS (Continued)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Strengths</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Limitations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-chapter-5-6-motivation">Why Chapter 5 &amp; 6? (Motivation)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem-with-ucb-ts">The Problem with UCB/TS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#limitation-of-stochastic-algorithms">Limitation of Stochastic Algorithms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#need-for-new-frameworks">Need for New Frameworks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-these-chapters-matter">Why These Chapters Matter</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-feedback-and-adversarial-costs">5. Full Feedback and Adversarial Costs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-definition-full-feedback">5.1 Problem Definition: Full Feedback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-full-feedback">What is Full Feedback?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-protocol-full-feedback">Problem Protocol: Full Feedback</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-sequential-prediction-with-experts">Example: Sequential Prediction with Experts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adversaries-and-regret">5.2 Adversaries and Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#types-of-adversaries">Types of Adversaries</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definitions">Regret Definitions</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithms-for-full-feedback">5.3 Algorithms for Full Feedback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-1-weighted-majority">Algorithm 1: Weighted Majority</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-weighted-majority">Analysis of Weighted Majority</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-2-hedge-multiplicative-weights-update">Algorithm 2: Hedge (Multiplicative Weights Update)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-hedge">Analysis of Hedge</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-results-for-full-feedback">5.4 Key Results for Full Feedback</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adversarial-bandits">6. Adversarial Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-definition-adversarial-bandits">6.1 Problem Definition: Adversarial Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-adversarial-bandits">What is Adversarial Bandits?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-protocol-adversarial-bandits">Problem Protocol: Adversarial Bandits</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#challenge-exploration-exploitation-tradeoff">Challenge: Exploration-Exploitation Tradeoff</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-exp3-exponential-weights-for-exploration-and-exploitation">6.2 Algorithm: Exp3 (Exponential Weights for Exploration and Exploitation)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#idea-of-exp3">Idea of Exp3</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exp3-steps">Exp3 Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-estimator-hat-c-t-a">Why the Estimator <span class="math notranslate nohighlight">\(\hat{c}_t(a)\)</span>?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-exp3">Analysis of Exp3</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extensions-of-exp3">6.3 Extensions of Exp3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-bounds-for-adversarial-bandits">6.4 Lower Bounds for Adversarial Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises-key-takeaways">Exercises (Key Takeaways)</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="full-feedback-and-adversarial-costs-adversarial-bandits">
+<h1>8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits<a class="headerlink" href="#full-feedback-and-adversarial-costs-adversarial-bandits" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Full feedback setting with adversarial costs</strong></p>
+<ul>
+<li><p>Problem formulation</p></li>
+<li><p>Adversary models</p></li>
+<li><p>Key algorithms: Weighted Majority, Hedge</p></li>
+<li><p>Regret analysis</p></li>
+</ul>
+</li>
+<li><p><strong>Adversarial bandits (limited feedback)</strong></p>
+<ul>
+<li><p>Problem formulation</p></li>
+<li><p>Key algorithm: Exp3</p></li>
+<li><p>Regret analysis and extensions</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="recap-key-algorithms-for-stochastic-bandits">
+<h2>Recap: Key Algorithms for Stochastic Bandits<a class="headerlink" href="#recap-key-algorithms-for-stochastic-bandits" title="Link to this heading">#</a></h2>
+<hr class="docutils" />
+<section id="ucb-upper-confidence-bound">
+<h3>UCB (Upper Confidence Bound)<a class="headerlink" href="#ucb-upper-confidence-bound" title="Link to this heading">#</a></h3>
+<section id="core-idea-optimism-in-the-face-of-uncertainty">
+<h4>Core Idea: “Optimism in the Face of Uncertainty”<a class="headerlink" href="#core-idea-optimism-in-the-face-of-uncertainty" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>How it works</strong>:</p>
+<ul>
+<li><p>For each arm, calculate an upper confidence bound (UCB) of its mean reward.</p></li>
+<li><p>The UCB combines the arm’s observed average reward and a “confidence term” (increases with uncertainty, i.e., fewer samples).</p></li>
+<li><p>Choose the arm with the highest UCB in each round.</p></li>
+</ul>
+</li>
+<li><p><strong>Formula</strong>:<br />
+$<span class="math notranslate nohighlight">\(UCB_t(a) = \bar{\mu}_t(a) + \sqrt{\frac{2 \log t}{n_t(a)}}\)</span><span class="math notranslate nohighlight">\(  
+( \)</span>\bar{\mu}_t(a)<span class="math notranslate nohighlight">\(: average reward of arm \)</span>a<span class="math notranslate nohighlight">\(; \)</span>n_t(a)<span class="math notranslate nohighlight">\(: number of times \)</span>a<span class="math notranslate nohighlight">\( is played by round \)</span>t$)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="ucb-continued">
+<h3>UCB (Continued)<a class="headerlink" href="#ucb-continued" title="Link to this heading">#</a></h3>
+<section id="strengths">
+<h4>Strengths<a class="headerlink" href="#strengths" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Works well in <strong>stochastic environments</strong> (rewards from fixed distributions).</p></li>
+<li><p>Balances exploration (uncertain arms get more trials) and exploitation (good arms get more plays) automatically.</p></li>
+<li><p>Provable regret bounds: <span class="math notranslate nohighlight">\(O(\sqrt{KT \log T})\)</span> for <span class="math notranslate nohighlight">\(K\)</span> arms and <span class="math notranslate nohighlight">\(T\)</span> rounds.</p></li>
+</ul>
+</section>
+<section id="limitations">
+<h4>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Relies on <strong>stable reward distributions</strong> (fails if rewards are adversarial/arbitrary).</p></li>
+<li><p>Confidence terms can be overly conservative in non-stationary settings.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="ts-thompson-sampling">
+<h3>TS (Thompson Sampling)<a class="headerlink" href="#ts-thompson-sampling" title="Link to this heading">#</a></h3>
+<section id="core-idea-bayesian-sampling">
+<h4>Core Idea: “Bayesian Sampling”<a class="headerlink" href="#core-idea-bayesian-sampling" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>How it works</strong>:</p>
+<ul>
+<li><p>Start with a prior distribution for each arm’s mean reward.</p></li>
+<li><p>After each round, update the posterior distribution using observed rewards (Bayesian update).</p></li>
+<li><p>Sample a mean reward from each arm’s posterior and choose the arm with the highest sampled value.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+<ul class="simple">
+<li><p><strong>Key Intuition</strong>:</p>
+<ul>
+<li><p>Arms with higher posterior probability of being optimal are more likely to be chosen.</p></li>
+<li><p>Naturally balances exploration (uncertain arms have wider posteriors, so more varied samples) and exploitation.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="ts-continued">
+<h3>TS (Continued)<a class="headerlink" href="#ts-continued" title="Link to this heading">#</a></h3>
+<section id="id1">
+<h4>Strengths<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Excellent performance in <strong>stochastic environments</strong>, often better than UCB in practice.</p></li>
+<li><p>Adapts well to prior knowledge (if available) via the initial prior.</p></li>
+<li><p>Provable regret bounds: <span class="math notranslate nohighlight">\(O(\log T)\)</span> for many stochastic settings.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h4>Limitations<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Still assumes <strong>rewards follow some underlying distribution</strong>.</p></li>
+<li><p>Fails in adversarial settings where rewards are manipulated to mislead the posterior.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="why-chapter-5-6-motivation">
+<h2>Why Chapter 5 &amp; 6? (Motivation)<a class="headerlink" href="#why-chapter-5-6-motivation" title="Link to this heading">#</a></h2>
+<section id="the-problem-with-ucb-ts">
+<h3>The Problem with UCB/TS<a class="headerlink" href="#the-problem-with-ucb-ts" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+</section>
+<section id="limitation-of-stochastic-algorithms">
+<h3>Limitation of Stochastic Algorithms<a class="headerlink" href="#limitation-of-stochastic-algorithms" title="Link to this heading">#</a></h3>
+<p>UCB and TS are designed for <strong>IID/stochastic rewards</strong> (e.g., coin flips with fixed probabilities).</p>
+<p>But many real-world scenarios are <strong>adversarial</strong>:</p>
+<ul class="simple">
+<li><p>Rewards can be chosen arbitrarily (e.g., a competitor intentionally lowering your rewards).</p></li>
+<li><p>Rewards can depend on your past actions (e.g., dynamic pricing where competitors react to your choices).</p></li>
+<li><p>No underlying “true” distribution to learn.</p></li>
+</ul>
+<p>In such cases, UCB/TS perform poorly—their assumptions about reward stability are violated.</p>
+<hr class="docutils" />
+</section>
+<section id="need-for-new-frameworks">
+<h3>Need for New Frameworks<a class="headerlink" href="#need-for-new-frameworks" title="Link to this heading">#</a></h3>
+<p>Chapters 5 and 6 address <strong>adversarial rewards</strong> with different feedback settings:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Feedback Available</p></th>
+<th class="head"><p>Key Challenge</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Chapter 5: Full Feedback</p></td>
+<td><p>Observe all arms’ rewards</p></td>
+<td><p>Adapt to arbitrary rewards with full information.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Chapter 6: Adversarial Bandits</p></td>
+<td><p>Observe only chosen arm’s reward</p></td>
+<td><p>Balance exploration/exploitation with limited, potentially misleading feedback.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+</section>
+<section id="why-these-chapters-matter">
+<h3>Why These Chapters Matter<a class="headerlink" href="#why-these-chapters-matter" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>They extend bandit theory to <strong>worst-case scenarios</strong> (no assumptions on reward distributions).</p></li>
+<li><p>Provide robust algorithms (e.g., Hedge for full feedback, Exp3 for bandit feedback) that work even when rewards are adversarial.</p></li>
+<li><p>Lay the foundation for applications like:</p>
+<ul>
+<li><p>Adversarial recommendation systems (competitors manipulate clicks).</p></li>
+<li><p>Dynamic pricing under competitor interference.</p></li>
+<li><p>Online learning with malicious noise.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="full-feedback-and-adversarial-costs">
+<h2>5. Full Feedback and Adversarial Costs<a class="headerlink" href="#full-feedback-and-adversarial-costs" title="Link to this heading">#</a></h2>
+<section id="problem-definition-full-feedback">
+<h3>5.1 Problem Definition: Full Feedback<a class="headerlink" href="#problem-definition-full-feedback" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="what-is-full-feedback">
+<h4>What is Full Feedback?<a class="headerlink" href="#what-is-full-feedback" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>After each round, the algorithm observes <strong>costs of all arms</strong>, not just the chosen one.</p></li>
+<li><p>Focus: Adversarial costs (costs can be arbitrary, chosen by an adversary).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="problem-protocol-full-feedback">
+<h4>Problem Protocol: Full Feedback<a class="headerlink" href="#problem-protocol-full-feedback" title="Link to this heading">#</a></h4>
+<p>Parameters: <span class="math notranslate nohighlight">\(K\)</span> arms, <span class="math notranslate nohighlight">\(T\)</span> rounds.<br />
+Each round <span class="math notranslate nohighlight">\(t \in [T]\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Adversary chooses costs <span class="math notranslate nohighlight">\(c_t(a) \geq 0\)</span> for all arms <span class="math notranslate nohighlight">\(a \in [K]\)</span>.</p></li>
+<li><p>Algorithm picks arm <span class="math notranslate nohighlight">\(a_t \in [K]\)</span>.</p></li>
+<li><p>Algorithm incurs cost <span class="math notranslate nohighlight">\(c_t(a_t)\)</span>.</p></li>
+<li><p><strong>All costs <span class="math notranslate nohighlight">\(c_t(a)\)</span> are revealed to the algorithm</strong>.</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="example-sequential-prediction-with-experts">
+<h4>Example: Sequential Prediction with Experts<a class="headerlink" href="#example-sequential-prediction-with-experts" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Setting: Predict labels with advice from <span class="math notranslate nohighlight">\(K\)</span> experts.</p></li>
+<li><p>Each round <span class="math notranslate nohighlight">\(t\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Adversary chooses observation <span class="math notranslate nohighlight">\(x_t\)</span> and true label <span class="math notranslate nohighlight">\(z_t^*\)</span>.</p></li>
+<li><p>Experts predict labels <span class="math notranslate nohighlight">\(z_{1,t}, ..., z_{K,t}\)</span>.</p></li>
+<li><p>Algorithm selects expert <span class="math notranslate nohighlight">\(e_t\)</span>.</p></li>
+<li><p>True label <span class="math notranslate nohighlight">\(z_t^*\)</span> is revealed; cost <span class="math notranslate nohighlight">\(c_t = \mathbb{1}_{\{z_{e_t,t} \neq z_t^*\}}\)</span>.</p></li>
+</ol>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="adversaries-and-regret">
+<h3>5.2 Adversaries and Regret<a class="headerlink" href="#adversaries-and-regret" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="types-of-adversaries">
+<h4>Types of Adversaries<a class="headerlink" href="#types-of-adversaries" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p><strong>Oblivious</strong>: Costs <span class="math notranslate nohighlight">\(c_t(a)\)</span> are fixed before round 1 (no dependence on algorithm’s choices).</p></li>
+<li><p><strong>Adaptive</strong>: Costs <span class="math notranslate nohighlight">\(c_t(a)\)</span> depend on the algorithm’s past choices <span class="math notranslate nohighlight">\(a_1, ..., a_{t-1}\)</span>.</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="regret-definitions">
+<h4>Regret Definitions<a class="headerlink" href="#regret-definitions" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Total cost of algorithm: <span class="math notranslate nohighlight">\(\text{cost}(ALG) = \sum_{t=1}^T c_t(a_t)\)</span></p></li>
+<li><p>Total cost of arm <span class="math notranslate nohighlight">\(a\)</span>: <span class="math notranslate nohighlight">\(\text{cost}(a) = \sum_{t=1}^T c_t(a)\)</span></p></li>
+</ul>
+<ol class="arabic simple">
+<li><p><strong>Regret</strong>: <span class="math notranslate nohighlight">\(R(T) = \text{cost}(ALG) - \min_{a \in [K]} \text{cost}(a)\)</span><br />
+(Worst vs. best-in-hindsight arm)</p></li>
+<li><p><strong>Pseudo-regret</strong>: <span class="math notranslate nohighlight">\(R(T) = \text{cost}(ALG) - \min_{a \in [K]} \mathbb{E}[\text{cost}(a)]\)</span><br />
+(Worst vs. best-in-foresight arm, for randomized adversaries)</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+</section>
+<section id="algorithms-for-full-feedback">
+<h3>5.3 Algorithms for Full Feedback<a class="headerlink" href="#algorithms-for-full-feedback" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="algorithm-1-weighted-majority">
+<h4>Algorithm 1: Weighted Majority<a class="headerlink" href="#algorithm-1-weighted-majority" title="Link to this heading">#</a></h4>
+<p><strong>Idea</strong>: Assign weights to arms; choose arm with weight proportional to its past performance.</p>
+<p><strong>Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p>Initialize weights <span class="math notranslate nohighlight">\(w_a(1) = 1\)</span> for all <span class="math notranslate nohighlight">\(a \in [K]\)</span>.</p></li>
+<li><p>For each round <span class="math notranslate nohighlight">\(t\)</span>:</p>
+<ul class="simple">
+<li><p>Choose arm <span class="math notranslate nohighlight">\(a_t\)</span> with probability <span class="math notranslate nohighlight">\(\frac{w_a(t)}{\sum_{a'} w_{a'}(t)}\)</span>.</p></li>
+<li><p>Observe all costs <span class="math notranslate nohighlight">\(c_t(a) \in \{0,1\}\)</span> (binary costs).</p></li>
+<li><p>Update weights: <span class="math notranslate nohighlight">\(w_a(t+1) = w_a(t) \cdot (1 - \epsilon)^{c_t(a)}\)</span> ( <span class="math notranslate nohighlight">\(\epsilon \in (0,1)\)</span> ).</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="analysis-of-weighted-majority">
+<h4>Analysis of Weighted Majority<a class="headerlink" href="#analysis-of-weighted-majority" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>For binary costs (<span class="math notranslate nohighlight">\(c_t(a) \in \{0,1\}\)</span>) and oblivious adversary:<br />
+<span class="math notranslate nohighlight">\(\mathbb{E}[R(T)] \leq 2\sqrt{T K \log K}\)</span> (with appropriate <span class="math notranslate nohighlight">\(\epsilon\)</span>).</p></li>
+<li><p>Key insight: Weights decrease for arms with high cumulative cost, so the algorithm focuses on low-cost arms.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="algorithm-2-hedge-multiplicative-weights-update">
+<h4>Algorithm 2: Hedge (Multiplicative Weights Update)<a class="headerlink" href="#algorithm-2-hedge-multiplicative-weights-update" title="Link to this heading">#</a></h4>
+<p><strong>Generalization</strong>: Works for arbitrary bounded costs (<span class="math notranslate nohighlight">\(c_t(a) \in [0,1]\)</span>).</p>
+<p><strong>Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p>Initialize weights <span class="math notranslate nohighlight">\(w_a(1) = 1\)</span> for all <span class="math notranslate nohighlight">\(a \in [K]\)</span>.</p></li>
+<li><p>For each round <span class="math notranslate nohighlight">\(t\)</span>:</p>
+<ul class="simple">
+<li><p>Choose arm <span class="math notranslate nohighlight">\(a_t\)</span> with probability <span class="math notranslate nohighlight">\(p_t(a) = \frac{w_a(t)}{\sum_{a'} w_{a'}(t)}\)</span>.</p></li>
+<li><p>Observe all costs <span class="math notranslate nohighlight">\(c_t(a) \in [0,1]\)</span>.</p></li>
+<li><p>Update weights: <span class="math notranslate nohighlight">\(w_a(t+1) = w_a(t) \cdot \exp(-\eta c_t(a))\)</span> ( <span class="math notranslate nohighlight">\(\eta &gt; 0\)</span> is a learning rate).</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="analysis-of-hedge">
+<h4>Analysis of Hedge<a class="headerlink" href="#analysis-of-hedge" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>For <span class="math notranslate nohighlight">\(c_t(a) \in [0,1]\)</span> and oblivious adversary:<br />
+With <span class="math notranslate nohighlight">\(\eta = \sqrt{\frac{\log K}{T}}\)</span>,<br />
+<span class="math notranslate nohighlight">\(\mathbb{E}[R(T)] \leq \sqrt{T K \log K}\)</span>.</p></li>
+<li><p>Tighter bound: <span class="math notranslate nohighlight">\(\mathbb{E}[R(T)] \leq 2\sqrt{T \log K} + \frac{\log K}{2\sqrt{T \log K}}\)</span> (approximates <span class="math notranslate nohighlight">\(O(\sqrt{T \log K})\)</span>).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="key-results-for-full-feedback">
+<h3>5.4 Key Results for Full Feedback<a class="headerlink" href="#key-results-for-full-feedback" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Oblivious adversary</strong>: Hedge achieves <span class="math notranslate nohighlight">\(O(\sqrt{T \log K})\)</span> expected regret.</p></li>
+<li><p><strong>Adaptive adversary</strong>: Same bounds hold (algorithms are robust to adaptivity).</p></li>
+<li><p><strong>IID costs</strong>: Even easier – no exploration needed; simple averaging achieves <span class="math notranslate nohighlight">\(O(\sqrt{T \log K})\)</span> regret.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="adversarial-bandits">
+<h2>6. Adversarial Bandits<a class="headerlink" href="#adversarial-bandits" title="Link to this heading">#</a></h2>
+<section id="problem-definition-adversarial-bandits">
+<h3>6.1 Problem Definition: Adversarial Bandits<a class="headerlink" href="#problem-definition-adversarial-bandits" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="what-is-adversarial-bandits">
+<h4>What is Adversarial Bandits?<a class="headerlink" href="#what-is-adversarial-bandits" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Limited feedback</strong>: After each round, the algorithm observes only the cost of the <strong>chosen arm</strong> (not others).</p></li>
+<li><p>Costs are chosen by an adversary (oblivious or adaptive).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="problem-protocol-adversarial-bandits">
+<h4>Problem Protocol: Adversarial Bandits<a class="headerlink" href="#problem-protocol-adversarial-bandits" title="Link to this heading">#</a></h4>
+<p>Parameters: <span class="math notranslate nohighlight">\(K\)</span> arms, <span class="math notranslate nohighlight">\(T\)</span> rounds.<br />
+Each round <span class="math notranslate nohighlight">\(t \in [T]\)</span>:</p>
+<ol class="arabic simple">
+<li><p>Adversary chooses costs <span class="math notranslate nohighlight">\(c_t(a) \geq 0\)</span> for all arms <span class="math notranslate nohighlight">\(a \in [K]\)</span>.</p></li>
+<li><p>Algorithm picks arm <span class="math notranslate nohighlight">\(a_t \in [K]\)</span>.</p></li>
+<li><p>Algorithm incurs cost <span class="math notranslate nohighlight">\(c_t(a_t)\)</span>.</p></li>
+<li><p><strong>Only <span class="math notranslate nohighlight">\(c_t(a_t)\)</span> is revealed to the algorithm</strong>.</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="challenge-exploration-exploitation-tradeoff">
+<h4>Challenge: Exploration-Exploitation Tradeoff<a class="headerlink" href="#challenge-exploration-exploitation-tradeoff" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Without full feedback, the algorithm cannot directly learn costs of unchosen arms.</p></li>
+<li><p>Must balance:</p>
+<ul>
+<li><p><strong>Exploration</strong>: Try new arms to learn their costs.</p></li>
+<li><p><strong>Exploitation</strong>: Choose arms believed to have low costs.</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="algorithm-exp3-exponential-weights-for-exploration-and-exploitation">
+<h3>6.2 Algorithm: Exp3 (Exponential Weights for Exploration and Exploitation)<a class="headerlink" href="#algorithm-exp3-exponential-weights-for-exploration-and-exploitation" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="idea-of-exp3">
+<h4>Idea of Exp3<a class="headerlink" href="#idea-of-exp3" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Combine Hedge’s multiplicative weights with explicit exploration.</p></li>
+<li><p>Choose each arm with probability that includes a small “exploration” term.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="exp3-steps">
+<h4>Exp3 Steps<a class="headerlink" href="#exp3-steps" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Initialize weights <span class="math notranslate nohighlight">\(w_a(1) = 1\)</span> for all <span class="math notranslate nohighlight">\(a \in [K]\)</span>.</p></li>
+<li><p>For each round <span class="math notranslate nohighlight">\(t\)</span>:</p>
+<ul class="simple">
+<li><p>Compute probabilities: <span class="math notranslate nohighlight">\(p_t(a) = \frac{(1 - \gamma) w_a(t)}{\sum_{a'} w_{a'}(t)} + \frac{\gamma}{K}\)</span>, where <span class="math notranslate nohighlight">\(\gamma \in (0,1)\)</span> (exploration rate).</p></li>
+<li><p>Choose arm <span class="math notranslate nohighlight">\(a_t\)</span> according to <span class="math notranslate nohighlight">\(p_t\)</span>.</p></li>
+<li><p>Observe <span class="math notranslate nohighlight">\(c_t(a_t) \in [0,1]\)</span>.</p></li>
+<li><p>Estimate cost for all arms: <span class="math notranslate nohighlight">\(\hat{c}_t(a) = \begin{cases} \frac{c_t(a_t)}{p_t(a_t)} &amp; \text{if } a = a_t, \\ 0 &amp; \text{otherwise}. \end{cases}\)</span></p></li>
+<li><p>Update weights: <span class="math notranslate nohighlight">\(w_a(t+1) = w_a(t) \cdot \exp(-\eta \hat{c}_t(a))\)</span> ( <span class="math notranslate nohighlight">\(\eta &gt; 0\)</span> is learning rate).</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="why-the-estimator-hat-c-t-a">
+<h4>Why the Estimator <span class="math notranslate nohighlight">\(\hat{c}_t(a)\)</span>?<a class="headerlink" href="#why-the-estimator-hat-c-t-a" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Unbiased estimate: <span class="math notranslate nohighlight">\(\mathbb{E}[\hat{c}_t(a)] = c_t(a)\)</span> for all <span class="math notranslate nohighlight">\(a\)</span>.</p></li>
+<li><p>Compensates for low-probability choices (large <span class="math notranslate nohighlight">\(1/p_t(a_t)\)</span> when <span class="math notranslate nohighlight">\(p_t(a_t)\)</span> is small).</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="analysis-of-exp3">
+<h4>Analysis of Exp3<a class="headerlink" href="#analysis-of-exp3" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>For <span class="math notranslate nohighlight">\(c_t(a) \in [0,1]\)</span> and oblivious adversary:<br />
+With <span class="math notranslate nohighlight">\(\gamma = \sqrt{\frac{\log K}{T K}}\)</span> and <span class="math notranslate nohighlight">\(\eta = \gamma\)</span>,<br />
+<span class="math notranslate nohighlight">\(\mathbb{E}[R(T)] \leq O(\sqrt{T K \log K})\)</span>.</p></li>
+<li><p>Key: The exploration term <span class="math notranslate nohighlight">\(\gamma/K\)</span> ensures all arms are tried, preventing large regret from untested arms.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="extensions-of-exp3">
+<h3>6.3 Extensions of Exp3<a class="headerlink" href="#extensions-of-exp3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Exp3-IX</strong>: Improves exploration by using importance weighting, achieving <span class="math notranslate nohighlight">\(O(\sqrt{T K \log K})\)</span> with better constants.</p></li>
+<li><p><strong>Adaptive adversaries</strong>: Exp3 bounds extend to adaptive adversaries.</p></li>
+<li><p><strong>Unbounded costs</strong>: With modifications (e.g., clipping), Exp3 works for costs bounded above by <span class="math notranslate nohighlight">\(C\)</span>, with regret scaled by <span class="math notranslate nohighlight">\(C\)</span>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="lower-bounds-for-adversarial-bandits">
+<h3>6.4 Lower Bounds for Adversarial Bandits<a class="headerlink" href="#lower-bounds-for-adversarial-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>For any algorithm, there exists an oblivious adversary such that:<br />
+<span class="math notranslate nohighlight">\(\mathbb{E}[R(T)] \geq \Omega(\sqrt{T K})\)</span>.</p></li>
+<li><p>Matches the upper bound of Exp3, showing optimality.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Feedback</p></th>
+<th class="head"><p>Algorithm</p></th>
+<th class="head"><p>Regret Bound</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Full Feedback</p></td>
+<td><p>All costs</p></td>
+<td><p>Hedge</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(\sqrt{T \log K})\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Adversarial Bandits</p></td>
+<td><p>Only chosen cost</p></td>
+<td><p>Exp3</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(\sqrt{T K \log K})\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+</section>
+<section id="exercises-key-takeaways">
+<h3>Exercises (Key Takeaways)<a class="headerlink" href="#exercises-key-takeaways" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Full feedback simplifies learning (no exploration needed for IID costs).</p></li>
+<li><p>Adversarial bandits require balancing exploration and exploitation.</p></li>
+<li><p>Exp3 is optimal for adversarial bandits, matching lower bounds.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec7.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-key-algorithms-for-stochastic-bandits">Recap: Key Algorithms for Stochastic Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-upper-confidence-bound">UCB (Upper Confidence Bound)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea-optimism-in-the-face-of-uncertainty">Core Idea: “Optimism in the Face of Uncertainty”</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-continued">UCB (Continued)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#strengths">Strengths</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ts-thompson-sampling">TS (Thompson Sampling)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#core-idea-bayesian-sampling">Core Idea: “Bayesian Sampling”</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ts-continued">TS (Continued)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Strengths</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Limitations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-chapter-5-6-motivation">Why Chapter 5 &amp; 6? (Motivation)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem-with-ucb-ts">The Problem with UCB/TS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#limitation-of-stochastic-algorithms">Limitation of Stochastic Algorithms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#need-for-new-frameworks">Need for New Frameworks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-these-chapters-matter">Why These Chapters Matter</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-feedback-and-adversarial-costs">5. Full Feedback and Adversarial Costs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-definition-full-feedback">5.1 Problem Definition: Full Feedback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-full-feedback">What is Full Feedback?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-protocol-full-feedback">Problem Protocol: Full Feedback</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example-sequential-prediction-with-experts">Example: Sequential Prediction with Experts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adversaries-and-regret">5.2 Adversaries and Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#types-of-adversaries">Types of Adversaries</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definitions">Regret Definitions</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithms-for-full-feedback">5.3 Algorithms for Full Feedback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-1-weighted-majority">Algorithm 1: Weighted Majority</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-weighted-majority">Analysis of Weighted Majority</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-2-hedge-multiplicative-weights-update">Algorithm 2: Hedge (Multiplicative Weights Update)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-hedge">Analysis of Hedge</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-results-for-full-feedback">5.4 Key Results for Full Feedback</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adversarial-bandits">6. Adversarial Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-definition-adversarial-bandits">6.1 Problem Definition: Adversarial Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-adversarial-bandits">What is Adversarial Bandits?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-protocol-adversarial-bandits">Problem Protocol: Adversarial Bandits</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#challenge-exploration-exploitation-tradeoff">Challenge: Exploration-Exploitation Tradeoff</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-exp3-exponential-weights-for-exploration-and-exploitation">6.2 Algorithm: Exp3 (Exponential Weights for Exploration and Exploitation)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#idea-of-exp3">Idea of Exp3</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exp3-steps">Exp3 Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#why-the-estimator-hat-c-t-a">Why the Estimator <span class="math notranslate nohighlight">\(\hat{c}_t(a)\)</span>?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-of-exp3">Analysis of Exp3</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extensions-of-exp3">6.3 Extensions of Exp3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-bounds-for-adversarial-bandits">6.4 Lower Bounds for Adversarial Bandits</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercises-key-takeaways">Exercises (Key Takeaways)</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

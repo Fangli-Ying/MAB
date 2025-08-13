@@ -1,0 +1,912 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)* &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec3';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Principles and Performance Comparison of ETC and UCB" href="lec4.html" />
+    <link rel="prev" title="2.Stochastic Multi-Armed Bandits" href="lec2.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec3.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec3.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>3. Explore-then-Commit (ETC) & Upper-Confidence-Bound (UCB)*</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#review-of-lectures">Review of Lectures</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explorethencommit-etc-high-level-idea">1. Explore–then–Commit (ETC) – High-Level Idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notation-core-quantities">2. Notation &amp; Core Quantities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition">3. Regret Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-the-commitment-error">4. Bounding the Commitment Error</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-1-sub-gaussian-rewards">Understanding 1-sub-Gaussian Rewards</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-concepts-probability-bounds">Key Concepts &amp; Probability Bounds</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#symbols-setup">Symbols &amp; Setup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-1-sub-gaussian">What is 1-sub-Gaussian?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#first-inequality-explained">First Inequality Explained</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#second-inequality-explained">Second Inequality Explained</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#takeaway">Takeaway</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-arms-case-choosing-m">5. Two-Arms Case – Choosing <span class="math notranslate nohighlight">\(m\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#general-k-arms">6. General <span class="math notranslate nohighlight">\(k\)</span> Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-caveat">7. Practical Caveat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-dependent-fix">8. Data-Dependent Fix</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-comparison">9. Scenario Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation-for-ucb">10. Motivation for UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-main-idea">11. UCB – Main Idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#confidence-bound-lemma">12. Confidence Bound Lemma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-algorithm-pseudo-code">13. UCB Algorithm (Pseudo-code)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition-why-ucb-works">14. Intuition – Why UCB Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualization-3-arms">15. Visualization – 3 Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#take-away-summary">16. Take-Away Summary</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="explore-then-commit-etc-upper-confidence-bound-ucb">
+<h1>3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*<a class="headerlink" href="#explore-then-commit-etc-upper-confidence-bound-ucb" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="review-of-lectures">
+<h2>Review of Lectures<a class="headerlink" href="#review-of-lectures" title="Link to this heading">#</a></h2>
+<p><em>Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)</em><br />
+<em>Bandit Algorithms for Sequential Decision Making</em></p>
+<hr class="docutils" />
+<section id="explorethencommit-etc-high-level-idea">
+<h3>1. Explore–then–Commit (ETC) – High-Level Idea<a class="headerlink" href="#explorethencommit-etc-high-level-idea" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Phase 1 – Explore</strong>: pull <em>every</em> arm exactly <span class="math notranslate nohighlight">\(m\)</span> times.</p></li>
+<li><p><strong>Phase 2 – Commit</strong>: forever after pull the arm with the <strong>largest empirical mean</strong> from the first <span class="math notranslate nohighlight">\(m\)</span> pulls.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="notation-core-quantities">
+<h3>2. Notation &amp; Core Quantities<a class="headerlink" href="#notation-core-quantities" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symbol</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k\)</span></p></td>
+<td><p>number of arms</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(n\)</span></p></td>
+<td><p>horizon (total rounds)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(m\)</span></p></td>
+<td><p>exploration length per arm</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\Delta_i = \mu^* - \mu_i\)</span></p></td>
+<td><p>sub-optimality gap of arm <span class="math notranslate nohighlight">\(i\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(\hat{\mu}_{i,m}\)</span></p></td>
+<td><p>empirical mean of arm <span class="math notranslate nohighlight">\(i\)</span> after <span class="math notranslate nohighlight">\(m\)</span> pulls</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(\mu_i\)</span></p></td>
+<td><p>true mean reward of arm <span class="math notranslate nohighlight">\(i\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+</section>
+<section id="regret-definition">
+<h3>3. Regret Definition<a class="headerlink" href="#regret-definition" title="Link to this heading">#</a></h3>
+<p><strong>Total regret after <span class="math notranslate nohighlight">\(n\)</span> rounds:</strong></p>
+<div class="math notranslate nohighlight">
+\[
+R_n(m) = m \sum_{i=1}^{k}\Delta_i + (n-mk)\sum_{i=1}^{k}\Delta_i \mathbb{P}\left(\text{commit to arm }i\right)
+\]</div>
+<ul class="simple">
+<li><p>First term: regret <strong>during exploration</strong>.</p></li>
+<li><p>Second term: regret <strong>due to possibly wrong commitment</strong>.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="bounding-the-commitment-error">
+<h3>4. Bounding the Commitment Error<a class="headerlink" href="#bounding-the-commitment-error" title="Link to this heading">#</a></h3>
+<p>When rewards are <strong>1-sub-Gaussian</strong>:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbb{P}\!\left(\hat{\mu}_{i,m} \ge \hat{\mu}_{1,m}\right) \le \exp\!\left(-\frac{m\Delta_i^2}{2}\right)
+\]</div>
+<p>Hence</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbb{P}(\text{commit to sub-optimal }i) \le \exp\!\left(-\frac{m\Delta_i^2}{2}\right)
+\]</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="understanding-1-sub-gaussian-rewards">
+<h2>Understanding 1-sub-Gaussian Rewards<a class="headerlink" href="#understanding-1-sub-gaussian-rewards" title="Link to this heading">#</a></h2>
+<section id="key-concepts-probability-bounds">
+<h3>Key Concepts &amp; Probability Bounds<a class="headerlink" href="#key-concepts-probability-bounds" title="Link to this heading">#</a></h3>
+<hr class="docutils" />
+<section id="symbols-setup">
+<h4>Symbols &amp; Setup<a class="headerlink" href="#symbols-setup" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\hat{\mu}_{i,m}\)</span>: Sample mean of <span class="math notranslate nohighlight">\(m\)</span> observations for option <span class="math notranslate nohighlight">\(i\)</span></p></li>
+<li><p>Option 1 is <strong>optimal</strong>: <span class="math notranslate nohighlight">\(\mu_1\)</span> (true mean) is largest</p></li>
+<li><p>For suboptimal <span class="math notranslate nohighlight">\(i\)</span> (<span class="math notranslate nohighlight">\(i \neq 1\)</span>):<br />
+<span class="math notranslate nohighlight">\(\Delta_i = \mu_1 - \mu_i &gt; 0\)</span> (true mean gap)</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="what-is-1-sub-gaussian">
+<h4>What is 1-sub-Gaussian?<a class="headerlink" href="#what-is-1-sub-gaussian" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>A random variable with <strong>strong concentration</strong> around its mean</p></li>
+<li><p>Deviations from the mean have exponentially decaying tail probabilities</p></li>
+<li><p>Sample mean <span class="math notranslate nohighlight">\(\hat{\mu}_{i,m}\)</span> stays close to true mean <span class="math notranslate nohighlight">\(\mu_i\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="first-inequality-explained">
+<h4>First Inequality Explained<a class="headerlink" href="#first-inequality-explained" title="Link to this heading">#</a></h4>
+<div class="math notranslate nohighlight">
+\[\mathbb{P}\!\left(\hat{\mu}_{i,m} \ge \hat{\mu}_{1,m}\right) \le \exp\!\left(-\frac{m\Delta_i^2}{2}\right)\]</div>
+<ul class="simple">
+<li><p>Event: Suboptimal <span class="math notranslate nohighlight">\(i\)</span>’s sample mean ≥ optimal 1’s sample mean</p></li>
+<li><p>This implies:<br />
+<span class="math notranslate nohighlight">\((\hat{\mu}_{i,m} - \mu_i) - (\hat{\mu}_{1,m} - \mu_1) \ge \Delta_i\)</span></p></li>
+<li><p>1-sub-Gaussian property makes this event exponentially unlikely</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="second-inequality-explained">
+<h4>Second Inequality Explained<a class="headerlink" href="#second-inequality-explained" title="Link to this heading">#</a></h4>
+<div class="math notranslate nohighlight">
+\[\mathbb{P}(\text{commit to sub-optimal }i) \le \exp\!\left(-\frac{m\Delta_i^2}{2}\right)\]</div>
+<ul class="simple">
+<li><p>“Commit to sub-optimal <span class="math notranslate nohighlight">\(i\)</span>” = choosing <span class="math notranslate nohighlight">\(i\)</span> over 1</p></li>
+<li><p>This happens <strong>only if</strong> <span class="math notranslate nohighlight">\(\hat{\mu}_{i,m} \ge \hat{\mu}_{1,m}\)</span></p></li>
+<li><p>Thus, its probability inherits the same bound</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="example">
+<h4>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Optimal arm 1: <span class="math notranslate nohighlight">\(\mu_1 = 10\)</span> (1-sub-Gaussian, e.g., <span class="math notranslate nohighlight">\(N(10,1)\)</span>)</p></li>
+<li><p>Suboptimal arm 2: <span class="math notranslate nohighlight">\(\mu_2 = 8\)</span> (<span class="math notranslate nohighlight">\(\Delta_2 = 2\)</span>)</p></li>
+<li><p>With <span class="math notranslate nohighlight">\(m=5\)</span> samples:<br />
+<span class="math notranslate nohighlight">\(\mathbb{P}(\text{choose arm 2}) \le \exp(-\frac{5 \times 2^2}{2}) = e^{-10} \approx 4.5 \times 10^{-5}\)</span></p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="takeaway">
+<h4>Takeaway<a class="headerlink" href="#takeaway" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Larger <span class="math notranslate nohighlight">\(m\)</span> (samples) → smaller probability of choosing suboptimal</p></li>
+<li><p>Larger <span class="math notranslate nohighlight">\(\Delta_i\)</span> (bigger gap) → smaller error probability</p></li>
+<li><p>Exponential decay ensures reliable selection with enough samples</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+</section>
+<section id="two-arms-case-choosing-m">
+<h3>5. Two-Arms Case – Choosing <span class="math notranslate nohighlight">\(m\)</span><a class="headerlink" href="#two-arms-case-choosing-m" title="Link to this heading">#</a></h3>
+<p>For <span class="math notranslate nohighlight">\(k=2\)</span> and <span class="math notranslate nohighlight">\(\Delta = \Delta_2\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[
+R_n(m) \approx m\Delta + (n-2m)\Delta \exp\!\left(-\frac{m\Delta^2}{2}\right)
+\]</div>
+<p>Take derivative w.r.t. <span class="math notranslate nohighlight">\(m\)</span> and set to zero <span class="math notranslate nohighlight">\(\Rightarrow\)</span> <strong>optimal</strong></p>
+<div class="math notranslate nohighlight">
+\[
+m^* = \left\lceil\frac{4\log n}{\Delta^2}\right\rceil
+\]</div>
+<p>gives</p>
+<div class="math notranslate nohighlight">
+\[
+R_n = O\!\left(\frac{\log n}{\Delta}\right)
+\]</div>
+<hr class="docutils" />
+</section>
+<section id="general-k-arms">
+<h3>6. General <span class="math notranslate nohighlight">\(k\)</span> Arms<a class="headerlink" href="#general-k-arms" title="Link to this heading">#</a></h3>
+<p>Optimal exploration length:</p>
+<div class="math notranslate nohighlight">
+\[
+m = \max_{i:\Delta_i&gt;0}\frac{4\log n}{\Delta_i^2}
+\]</div>
+<p>Resulting regret:</p>
+<div class="math notranslate nohighlight">
+\[
+R_n \le \sum_{i:\Delta_i&gt;0}\frac{4\log n}{\Delta_i} + \text{small terms}
+\]</div>
+<hr class="docutils" />
+</section>
+<section id="practical-caveat">
+<h3>7. Practical Caveat<a class="headerlink" href="#practical-caveat" title="Link to this heading">#</a></h3>
+<p>Choosing <span class="math notranslate nohighlight">\(m\)</span> above <strong>requires knowledge of <span class="math notranslate nohighlight">\(\Delta_i\)</span> and <span class="math notranslate nohighlight">\(n\)</span></strong><br />
+– <strong>often unknown in practice</strong>.</p>
+<hr class="docutils" />
+</section>
+<section id="data-dependent-fix">
+<h3>8. Data-Dependent Fix<a class="headerlink" href="#data-dependent-fix" title="Link to this heading">#</a></h3>
+<p>Instead of a fixed <span class="math notranslate nohighlight">\(m\)</span>, <strong>keep exploring until</strong>:</p>
+<div class="math notranslate nohighlight">
+\[
+t \ge 2^t \text{ threshold (function of observed data)}
+\]</div>
+<p>Achieves the <em>same</em> <span class="math notranslate nohighlight">\(\sum_i\frac{4\log n}{\Delta_i}\)</span> regret without prior <span class="math notranslate nohighlight">\(\Delta_i\)</span>.</p>
+<hr class="docutils" />
+</section>
+<section id="scenario-comparison">
+<h3>9. Scenario Comparison<a class="headerlink" href="#scenario-comparison" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\Delta\)</span></p></th>
+<th class="head"><p>Relative Regret</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0.2</p></td>
+<td><p>smaller</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>0.1</p></td>
+<td><p>larger</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Larger <span class="math notranslate nohighlight">\(\Delta\)</span> <span class="math notranslate nohighlight">\(\Rightarrow\)</span> fewer mistakes, <strong>even though per-mistake regret is bigger</strong>.</p>
+<hr class="docutils" />
+</section>
+<section id="motivation-for-ucb">
+<h3>10. Motivation for UCB<a class="headerlink" href="#motivation-for-ucb" title="Link to this heading">#</a></h3>
+<p>ETC weaknesses:</p>
+<ul class="simple">
+<li><p>Needs <span class="math notranslate nohighlight">\(\Delta_i\)</span> to set <span class="math notranslate nohighlight">\(m\)</span>.</p></li>
+<li><p><strong>Abrupt</strong> switch from explore to exploit.</p></li>
+<li><p>All arms <strong>equally</strong> explored.</p></li>
+</ul>
+<p><strong>UCB</strong> addresses all three issues via <em>optimism under uncertainty</em>.</p>
+<hr class="docutils" />
+</section>
+<section id="ucb-main-idea">
+<h3>11. UCB – Main Idea<a class="headerlink" href="#ucb-main-idea" title="Link to this heading">#</a></h3>
+<p>In each round <span class="math notranslate nohighlight">\(t\)</span> compute an <strong>upper confidence bound (UCB)</strong> index for every arm:</p>
+<div class="math notranslate nohighlight">
+\[
+\text{UCB}_{i,t-1} = \underbrace{\hat{\mu}_{i,T_i(t-1)}}_{\text{empirical mean}} + \underbrace{\sqrt{\frac{2\log(1/\delta)}{T_i(t-1)}}}_{\text{exploration bonus}}
+\]</div>
+<p>Pull arm</p>
+<div class="math notranslate nohighlight">
+\[
+A_t = \arg\max_i \text{UCB}_{i,t-1}
+\]</div>
+<hr class="docutils" />
+</section>
+<section id="confidence-bound-lemma">
+<h3>12. Confidence Bound Lemma<a class="headerlink" href="#confidence-bound-lemma" title="Link to this heading">#</a></h3>
+<p>For 1-sub-Gaussian rewards:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbb{P}\!\left(\forall s\ge 1,\ |\hat{\mu}_s - \mu| \le \sqrt{\frac{2\log(2/\delta)}{s}}\right) \ge 1-\delta
+\]</div>
+<p>Hence choose</p>
+<div class="math notranslate nohighlight">
+\[
+\delta_t = \frac{1}{t^4} \quad\Rightarrow\quad \text{bonus} = \sqrt{\frac{2\log t}{T_i(t-1)}}
+\]</div>
+<hr class="docutils" />
+</section>
+<section id="ucb-algorithm-pseudo-code">
+<h3>13. UCB Algorithm (Pseudo-code)<a class="headerlink" href="#ucb-algorithm-pseudo-code" title="Link to this heading">#</a></h3>
+<p>The UCB algorithm operates as follows:</p>
+<ol class="arabic simple">
+<li><p><strong>Initialization</strong>: Take the number of arms k as input</p></li>
+<li><p><strong>For each round t from 1 to n</strong>:</p>
+<ul class="simple">
+<li><p>For each arm i:</p>
+<ul>
+<li><p>If the arm has never been pulled before, set its UCB value to +∞</p></li>
+<li><p>Otherwise, calculate its UCB value as: empirical mean <span class="math notranslate nohighlight">\((μ̂_i)\)</span> plus the exploration bonus  <span class="math notranslate nohighlight">\(\sqrt{\frac{2\log(1/\delta)}{T_i(t-1)}}\)</span> , where <span class="math notranslate nohighlight">\(T_i(t-1)\)</span> is the number of times arm i has been pulled before round <span class="math notranslate nohighlight">\(t\)</span></p></li>
+</ul>
+</li>
+<li><p>Select the arm with the highest UCB value <span class="math notranslate nohighlight">\((A_t = argmax_i UCB_{i,t-1})\)</span></p></li>
+<li><p>Pull the selected arm and observe the reward <span class="math notranslate nohighlight">\(X_t\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Repeat</strong> this process until all n rounds are completed</p></li>
+</ol>
+<hr class="docutils" />
+</section>
+<section id="intuition-why-ucb-works">
+<h3>14. Intuition – Why UCB Works<a class="headerlink" href="#intuition-why-ucb-works" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Confidence intervals</strong> shrink as <span class="math notranslate nohighlight">\(T_i\)</span> grows.</p></li>
+<li><p>Best arm’s UCB <span class="math notranslate nohighlight">\(\approx\)</span> its true mean (many pulls).</p></li>
+<li><p>Sub-optimal arm stops being pulled when</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[
+\sqrt{\frac{2\log t}{T_i(t-1)}} \le \frac{\Delta_i}{2}
+\quad\Rightarrow\quad
+T_i(t-1) \approx \frac{8\log t}{\Delta_i^2}
+\]</div>
+<p>Hence pulls of arm <span class="math notranslate nohighlight">\(i\)</span> are <strong>inversely proportional to <span class="math notranslate nohighlight">\(\Delta_i^2\)</span></strong>.</p>
+<hr class="docutils" />
+</section>
+<section id="visualization-3-arms">
+<h3>15. Visualization – 3 Arms<a class="headerlink" href="#visualization-3-arms" title="Link to this heading">#</a></h3>
+<p>Means: <span class="math notranslate nohighlight">\(\mu_1=0.8,\ \mu_2=0.7,\ \mu_3=0.6\)</span></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Arm</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\Delta_i\)</span></p></th>
+<th class="head"><p>Typical pulls</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p><span class="math notranslate nohighlight">\(\gg\log n\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>0.1</p></td>
+<td><p><span class="math notranslate nohighlight">\(\propto\frac{\log n}{0.1^2}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>0.2</p></td>
+<td><p><span class="math notranslate nohighlight">\(\propto\frac{\log n}{0.2^2}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Confidence intervals shrink until their width matches the respective <span class="math notranslate nohighlight">\(\Delta_i\)</span>.</p>
+<hr class="docutils" />
+</section>
+<section id="take-away-summary">
+<h3>16. Take-Away Summary<a class="headerlink" href="#take-away-summary" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
+<th class="head"><p>Needs <span class="math notranslate nohighlight">\(\Delta_i\)</span>?</p></th>
+<th class="head"><p>Regret Bound</p></th>
+<th class="head"><p>Abrupt Switch?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ETC</p></td>
+<td><p>Yes</p></td>
+<td><p><span class="math notranslate nohighlight">\(O\!\left(\frac{k\log n}{\Delta}\right)\)</span></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>UCB</p></td>
+<td><p>No</p></td>
+<td><p><span class="math notranslate nohighlight">\(O\!\left(\sum_i\frac{\log n}{\Delta_i}\right)\)</span></p></td>
+<td><p>No (smooth)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>UCB achieves <strong>near-optimal regret</strong> while being <strong>fully adaptive</strong>.</p>
+<hr class="docutils" />
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec2.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">2.Stochastic Multi-Armed Bandits</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec4.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">4. Principles and Performance Comparison of ETC and UCB</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#review-of-lectures">Review of Lectures</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explorethencommit-etc-high-level-idea">1. Explore–then–Commit (ETC) – High-Level Idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notation-core-quantities">2. Notation &amp; Core Quantities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition">3. Regret Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-the-commitment-error">4. Bounding the Commitment Error</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-1-sub-gaussian-rewards">Understanding 1-sub-Gaussian Rewards</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-concepts-probability-bounds">Key Concepts &amp; Probability Bounds</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#symbols-setup">Symbols &amp; Setup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-1-sub-gaussian">What is 1-sub-Gaussian?</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#first-inequality-explained">First Inequality Explained</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#second-inequality-explained">Second Inequality Explained</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#takeaway">Takeaway</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-arms-case-choosing-m">5. Two-Arms Case – Choosing <span class="math notranslate nohighlight">\(m\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#general-k-arms">6. General <span class="math notranslate nohighlight">\(k\)</span> Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-caveat">7. Practical Caveat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-dependent-fix">8. Data-Dependent Fix</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-comparison">9. Scenario Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation-for-ucb">10. Motivation for UCB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-main-idea">11. UCB – Main Idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#confidence-bound-lemma">12. Confidence Bound Lemma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucb-algorithm-pseudo-code">13. UCB Algorithm (Pseudo-code)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition-why-ucb-works">14. Intuition – Why UCB Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualization-3-arms">15. Visualization – 3 Arms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#take-away-summary">16. Take-Away Summary</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1220 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>1. Introduction to Multi-Armed Bandits &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec1';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2.Stochastic Multi-Armed Bandits" href="lec2.html" />
+    <link rel="prev" title="Welcome to your Jupyter Book" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec5.html">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec1.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec1.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>1. Introduction to Multi-Armed Bandits</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#session-1-introduction-to-multi-armed-bandits">Session 1: Introduction to Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-making-with-uncertainty">Decision-Making with Uncertainty</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-challenge">Core Challenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-questions">Key Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-b-testing-detailed-look">A/B Testing: Detailed Look</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-a-b-testing">What is A/B Testing?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations-of-a-b-testing">Limitations of A/B Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-a-b-testing-to-multi-armed-bandits">From A/B Testing to Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-analogy">The Analogy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-mab-framework">Multi-Armed Bandits (MAB) Framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formalizing-the-bandit-problem">Formalizing the Bandit Problem</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">Key Components</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Formalizing the Bandit Problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-definitions-regret">Key Definitions: Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-measure-of-suboptimality">Regret: Measure of Suboptimality</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition-and-core-idea">Regret: Definition and Core Idea</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-regret">What is Regret?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition-total-regret-after-n-rounds">Formal Definition (Total Regret after n rounds)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Regret: Definition and Core Idea</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition">Intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-observation">Key Observation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Regret Decomposition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-down-total-regret">Breaking Down Total Regret</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">Interpretation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Regret Decomposition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-two-armed-bandit">Example: Two-Armed Bandit</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#properties-and-bounds-of-regret">Properties and Bounds of Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-over-time">Regret Over Time</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-dependent-vs-instance-independent-bounds">Instance-Dependent vs. Instance-Independent Bounds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Properties and Bounds of Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-bounds">Lower Bounds</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaway">Key Takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-exploitation-tradeoff">Exploration-Exploitation Tradeoff</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-dilemma">Core Dilemma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-epsilon-greedy-algorithm">Example: Epsilon-Greedy Algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics-for-bandits">Probability Basics for Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concentration-of-measure">Concentration of Measure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tools-to-bound-uncertainty-in-reward-estimates">Tools to bound uncertainty in reward estimates:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-world-instances-of-bandits">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clinical-trials">1. Clinical Trials</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recommendation-systems">2. Recommendation Systems</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pricing-optimization">3. Pricing Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#social-media-advertising">4. Social Media Advertising</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#case-study-social-media-advertising">Case Study: Social Media Advertising</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-with-a-b-testing">Problem with A/B Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mab-algorithm-advantage-e-g-klucb">MAB Algorithm Advantage (e.g., KLUCB)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison-a-b-testing-vs-bandits">Performance Comparison: A/B Testing vs. Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Performance Comparison: A/B Testing vs. Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-of-bandit-problems">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contextual-bandits">1. Contextual Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adversarial-bandits">2. Adversarial Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#combinatorial-bandits">3. Combinatorial Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-key-takeaways">Summary &amp; Key Takeaways</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion-topics">Discussion Topics</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction-to-multi-armed-bandits">
+<h1>1. Introduction to Multi-Armed Bandits<a class="headerlink" href="#introduction-to-multi-armed-bandits" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="session-1-introduction-to-multi-armed-bandits">
+<h2>Session 1: Introduction to Multi-Armed Bandits<a class="headerlink" href="#session-1-introduction-to-multi-armed-bandits" title="Link to this heading">#</a></h2>
+<section id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Decision-Making with Uncertainty</p></li>
+<li><p>A/B Testing: Details and Limitations</p></li>
+<li><p>Formalizing A/B Testing in Multi-Armed Bandits Framework</p></li>
+<li><p>Key Definitions &amp; Real-World Instances</p></li>
+<li><p>Algorithms &amp; Performance Analysis</p></li>
+<li><p>Case Study: Social Media Advertising</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="decision-making-with-uncertainty">
+<h2>Decision-Making with Uncertainty<a class="headerlink" href="#decision-making-with-uncertainty" title="Link to this heading">#</a></h2>
+<section id="core-challenge">
+<h3>Core Challenge<a class="headerlink" href="#core-challenge" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Making choices when outcomes are uncertain</p></li>
+<li><p>Example: Website design optimization</p>
+<ul>
+<li><p>Version A: 50 signups</p></li>
+<li><p>Version B: 75 signups</p></li>
+<li><p><strong>Question</strong>: Is Version B truly better? How to quantify uncertainty?</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="key-questions">
+<h2>Key Questions<a class="headerlink" href="#key-questions" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>How to compare options (e.g., Version A vs. B)?</p></li>
+<li><p>How to formalize uncertainty in decisions?</p></li>
+<li><p>How to balance learning (exploration) and earning (exploitation)?</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="a-b-testing-detailed-look">
+<h2>A/B Testing: Detailed Look<a class="headerlink" href="#a-b-testing-detailed-look" title="Link to this heading">#</a></h2>
+<section id="what-is-a-b-testing">
+<h3>What is A/B Testing?<a class="headerlink" href="#what-is-a-b-testing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A method to compare two versions (A/B) of a product/design</p></li>
+<li><p>Process:</p>
+<ul>
+<li><p>Randomly assign users to Version A or B</p></li>
+<li><p>Measure key metrics (e.g., signups, clicks)</p></li>
+<li><p>Determine which version performs better</p></li>
+</ul>
+</li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="limitations-of-a-b-testing">
+<h3>Limitations of A/B Testing<a class="headerlink" href="#limitations-of-a-b-testing" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Fixed test phase: Wastes resources on inferior options</p></li>
+<li><p>Sudden switch from exploration to exploitation</p></li>
+<li><p>Ignores dynamic adaptation to new data</p></li>
+<li><p>Fails to leverage context or user-specific information</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="from-a-b-testing-to-multi-armed-bandits">
+<h2>From A/B Testing to Multi-Armed Bandits<a class="headerlink" href="#from-a-b-testing-to-multi-armed-bandits" title="Link to this heading">#</a></h2>
+<section id="the-analogy">
+<h3>The Analogy<a class="headerlink" href="#the-analogy" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A/B Testing ≈ 2-armed bandit problem</p>
+<ul>
+<li><p>“Arms”: Version A and Version B</p></li>
+<li><p>“Reward”: Signups, clicks, or other metrics</p></li>
+<li><p>“Uncertainty”: Unknown success probabilities of each arm</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="multi-armed-bandits-mab-framework">
+<h2>Multi-Armed Bandits (MAB) Framework<a class="headerlink" href="#multi-armed-bandits-mab-framework" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Generalizes to K arms (K options)</p></li>
+<li><p>Sequential decision-making: Choose an arm, observe reward, update strategy</p></li>
+<li><p>Goal: Maximize total reward over time by balancing exploration (learning) and exploitation (using known good arms)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="formalizing-the-bandit-problem">
+<h2>Formalizing the Bandit Problem<a class="headerlink" href="#formalizing-the-bandit-problem" title="Link to this heading">#</a></h2>
+<section id="key-components">
+<h3>Key Components<a class="headerlink" href="#key-components" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Environment</strong>: Defines reward distributions for each arm</p></li>
+</ol>
+<ul class="simple">
+<li><p>e.g., <span class="math notranslate nohighlight">\(P_a\)</span>: Probability distribution of rewards for arm <span class="math notranslate nohighlight">\(a\)</span></p></li>
+<li><p>Mean reward: <span class="math notranslate nohighlight">\(\mu_a = \mathbb{E}[X_t | A_t = a]\)</span></p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p><strong>Policy</strong>: Strategy to select arms over time</p></li>
+</ol>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\pi_t(\cdot | H_{t-1})\)</span>: Probability of choosing arm <span class="math notranslate nohighlight">\(a\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> given history <span class="math notranslate nohighlight">\(H_{t-1}\)</span></p></li>
+</ul>
+<ol class="arabic simple" start="3">
+<li><p><strong>Reward</strong>: Outcome of selecting an arm</p></li>
+</ol>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(X_t \in [0,1]\)</span> (e.g., 1 for success, 0 for failure)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h2>Formalizing the Bandit Problem<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>Where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(P_a\)</span> denotes the probability distribution of rewards for arm <span class="math notranslate nohighlight">\(a\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu_a\)</span> represents the mean reward of arm <span class="math notranslate nohighlight">\(a\)</span>, defined by the expectation <span class="math notranslate nohighlight">\(\mathbb{E}[X_t | A_t = a]\)</span> (i.e., the expected value of reward <span class="math notranslate nohighlight">\(X_t\)</span> when arm <span class="math notranslate nohighlight">\(a\)</span> is chosen at time <span class="math notranslate nohighlight">\(t\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\pi_t(\cdot | H_{t-1})\)</span> indicates the probability distribution strategy for choosing an arm at time <span class="math notranslate nohighlight">\(t\)</span> given the history <span class="math notranslate nohighlight">\(H_{t-1}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(X_t\)</span> stands for the reward obtained at time <span class="math notranslate nohighlight">\(t\)</span>, with a value range of <span class="math notranslate nohighlight">\([0,1]\)</span> (e.g., 1 represents success, 0 represents failure)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="key-definitions-regret">
+<h2>Key Definitions: Regret<a class="headerlink" href="#key-definitions-regret" title="Link to this heading">#</a></h2>
+<section id="regret-measure-of-suboptimality">
+<h3>Regret: Measure of Suboptimality<a class="headerlink" href="#regret-measure-of-suboptimality" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Total regret after <span class="math notranslate nohighlight">\(n\)</span> rounds:</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(R_n = n \max_{a \in \mathcal{A}} \mu_a - \mathbb{E}\left[\sum_{t=1}^n X_t\right]\)</span></p>
+<ul class="simple">
+<li><p>Difference between the best possible reward and the expected reward of the policy</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="regret-decomposition">
+<h2>Regret Decomposition<a class="headerlink" href="#regret-decomposition" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Lemma: Regret can be decomposed using the number of times each arm is played:</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(R_n = \sum_{a \in \mathcal{A}} \Delta_a \mathbb{E}[T_a(n)]\)</span></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\Delta_a = \mu^* - \mu_a\)</span> (gap between best arm <span class="math notranslate nohighlight">\(\mu^*\)</span> and arm <span class="math notranslate nohighlight">\(a\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\(T_a(n)\)</span>: Number of times arm <span class="math notranslate nohighlight">\(a\)</span> is played in <span class="math notranslate nohighlight">\(n\)</span> rounds</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="regret-definition-and-core-idea">
+<h2>Regret: Definition and Core Idea<a class="headerlink" href="#regret-definition-and-core-idea" title="Link to this heading">#</a></h2>
+<section id="what-is-regret">
+<h3>What is Regret?<a class="headerlink" href="#what-is-regret" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A fundamental metric to quantify the suboptimality of a decision-making policy over time.</p></li>
+<li><p>Measures the <strong>opportunity cost</strong> of not knowing the best action (arm) in advance.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="formal-definition-total-regret-after-n-rounds">
+<h2>Formal Definition (Total Regret after n rounds)<a class="headerlink" href="#formal-definition-total-regret-after-n-rounds" title="Link to this heading">#</a></h2>
+<p><span class="math notranslate nohighlight">\(R_n = n \cdot \max_{a \in \mathcal{A}} \mu_a - \mathbb{E}\left[\sum_{t=1}^n X_t\right]\)</span></p>
+<ul class="simple">
+<li><p>Where:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\max_{a \in \mathcal{A}} \mu_a = \mu^*\)</span>: The highest mean reward among all arms (best possible per-round reward).</p></li>
+<li><p><span class="math notranslate nohighlight">\(n \cdot \mu^*\)</span>: Total reward if we always chose the best arm.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbb{E}\left[\sum_{t=1}^n X_t\right]\)</span>: Expected total reward of the policy over <span class="math notranslate nohighlight">\(n\)</span> rounds.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2>Regret: Definition and Core Idea<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="intuition">
+<h3>Intuition<a class="headerlink" href="#intuition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Regret captures the <strong>difference</strong> between:</p>
+<ol class="arabic simple">
+<li><p>The best possible reward (if we knew the optimal arm from the start).</p></li>
+<li><p>The reward actually obtained by the algorithm’s strategy.</p></li>
+</ol>
+</li>
+<li><p>Example: If <span class="math notranslate nohighlight">\(\mu^* = 0.8\)</span> (best arm), and over 100 rounds the algorithm’s expected total reward is 60, then:</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(R_{100} = 100 \cdot 0.8 - 60 = 20\)</span></p>
+<p>The algorithm “regrets” missing out on 20 units of reward.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="key-observation">
+<h2>Key Observation<a class="headerlink" href="#key-observation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Regret is non-negative: <span class="math notranslate nohighlight">\(R_n \geq 0\)</span>, since <span class="math notranslate nohighlight">\(\mu^*\)</span> is the maximum mean reward.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id3">
+<h2>Regret Decomposition<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<section id="breaking-down-total-regret">
+<h3>Breaking Down Total Regret<a class="headerlink" href="#breaking-down-total-regret" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Regret can be decomposed based on how often each arm is used:
+<span class="math notranslate nohighlight">\(R_n = \sum_{a \in \mathcal{A}} \Delta_a \cdot \mathbb{E}[T_a(n)]\)</span></p></li>
+<li><p>Where:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\Delta_a = \mu^* - \mu_a\)</span>: The “gap” between the best arm and arm <span class="math notranslate nohighlight">\(a\)</span> (measures how suboptimal <span class="math notranslate nohighlight">\(a\)</span> is).</p></li>
+<li><p><span class="math notranslate nohighlight">\(T_a(n)\)</span>: The number of times arm <span class="math notranslate nohighlight">\(a\)</span> is chosen in <span class="math notranslate nohighlight">\(n\)</span> rounds (random variable).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbb{E}[T_a(n)]\)</span>: Expected number of times arm <span class="math notranslate nohighlight">\(a\)</span> is used.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="interpretation">
+<h2>Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Each arm <span class="math notranslate nohighlight">\(a\)</span> contributes to regret proportionally to:</p>
+<ol class="arabic simple">
+<li><p>Its suboptimality gap <span class="math notranslate nohighlight">\(\Delta_a\)</span>.</p></li>
+<li><p>How often it is selected (<span class="math notranslate nohighlight">\(\mathbb{E}[T_a(n)]\)</span>).</p></li>
+</ol>
+</li>
+<li><p>Poorly performing arms (large <span class="math notranslate nohighlight">\(\Delta_a\)</span>) should be used rarely to minimize regret.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>Regret Decomposition<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<section id="example-two-armed-bandit">
+<h3>Example: Two-Armed Bandit<a class="headerlink" href="#example-two-armed-bandit" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Suppose:</p>
+<ul>
+<li><p>Arm 1: <span class="math notranslate nohighlight">\(\mu_1 = 0.9\)</span> (optimal, <span class="math notranslate nohighlight">\(\mu^* = 0.9\)</span>)</p></li>
+<li><p>Arm 2: <span class="math notranslate nohighlight">\(\mu_2 = 0.6\)</span> (gap <span class="math notranslate nohighlight">\(\Delta_2 = 0.3\)</span>)</p></li>
+<li><p>Over <span class="math notranslate nohighlight">\(n=100\)</span> rounds, arm 2 is used 20 times on average.</p></li>
+</ul>
+</li>
+<li><p>Regret decomposition:
+<span class="math notranslate nohighlight">\(R_{100} = \Delta_2 \cdot \mathbb{E}[T_2(100)] = 0.3 \cdot 20 = 6\)</span></p></li>
+<li><p>Intuition: Using the suboptimal arm 20 times costs <span class="math notranslate nohighlight">\(0.3 \times 20 = 6\)</span> in total regret.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>Regret Decomposition<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Helps analyze algorithm performance: Focus on limiting usage of arms with large <span class="math notranslate nohighlight">\(\Delta_a\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="properties-and-bounds-of-regret">
+<h2>Properties and Bounds of Regret<a class="headerlink" href="#properties-and-bounds-of-regret" title="Link to this heading">#</a></h2>
+<section id="regret-over-time">
+<h3>Regret Over Time<a class="headerlink" href="#regret-over-time" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Regret typically grows with the number of rounds <span class="math notranslate nohighlight">\(n\)</span>, but the <strong>rate</strong> depends on the algorithm:</p>
+<ul>
+<li><p>Poor algorithms: <span class="math notranslate nohighlight">\(R_n \approx O(n)\)</span> (e.g., always choosing a suboptimal arm).</p></li>
+<li><p>Good algorithms: <span class="math notranslate nohighlight">\(R_n \approx O(\sqrt{n})\)</span> or <span class="math notranslate nohighlight">\(O(\log n)\)</span> (balances exploration/exploitation).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="instance-dependent-vs-instance-independent-bounds">
+<h2>Instance-Dependent vs. Instance-Independent Bounds<a class="headerlink" href="#instance-dependent-vs-instance-independent-bounds" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Instance-dependent</strong>: Bounds depend on gaps <span class="math notranslate nohighlight">\(\Delta_a\)</span> (e.g., <span class="math notranslate nohighlight">\(R_n \leq O\left(\sum_{a} \frac{\log n}{\Delta_a}\right)\)</span> for UCB).</p></li>
+<li><p><strong>Instance-independent</strong>: Bounds hold for all problem instances (e.g., <span class="math notranslate nohighlight">\(R_n \leq O(\sqrt{Kn \log n})\)</span> for UCB, where <span class="math notranslate nohighlight">\(K\)</span> is the number of arms).</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>Properties and Bounds of Regret<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<section id="lower-bounds">
+<h3>Lower Bounds<a class="headerlink" href="#lower-bounds" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>No algorithm can avoid regret growing at least as fast as certain rates:</p>
+<ul>
+<li><p>For <span class="math notranslate nohighlight">\(K\)</span> arms: <span class="math notranslate nohighlight">\(\Omega(\sqrt{Kn})\)</span> (worst-case).</p></li>
+<li><p>For a fixed instance: <span class="math notranslate nohighlight">\(\Omega\left(\sum_{a} \frac{\log n}{\Delta_a}\right)\)</span> (Lai-Robbins bound).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="key-takeaway">
+<h2>Key Takeaway<a class="headerlink" href="#key-takeaway" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Regret quantifies how well an algorithm balances exploration (learning about arms) and exploitation (using known good arms).</p></li>
+<li><p>Minimizing regret is the core goal in multi-armed bandit problems.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="exploration-exploitation-tradeoff">
+<h2>Exploration-Exploitation Tradeoff<a class="headerlink" href="#exploration-exploitation-tradeoff" title="Link to this heading">#</a></h2>
+<section id="core-dilemma">
+<h3>Core Dilemma<a class="headerlink" href="#core-dilemma" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Exploration</strong>: Try new arms to learn their rewards (reduces uncertainty)</p></li>
+<li><p><strong>Exploitation</strong>: Choose known good arms to maximize immediate reward</p></li>
+</ul>
+</section>
+<section id="example-epsilon-greedy-algorithm">
+<h3>Example: Epsilon-Greedy Algorithm<a class="headerlink" href="#example-epsilon-greedy-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>With probability <span class="math notranslate nohighlight">\(\epsilon\)</span>: Explore (randomly select an arm)</p></li>
+<li><p>With probability <span class="math notranslate nohighlight">\(1-\epsilon\)</span>: Exploit (select arm with highest observed mean)</p></li>
+<li><p>Balances exploration (via <span class="math notranslate nohighlight">\(\epsilon\)</span>) and exploitation</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="probability-basics-for-bandits">
+<h2>Probability Basics for Bandits<a class="headerlink" href="#probability-basics-for-bandits" title="Link to this heading">#</a></h2>
+<section id="concentration-of-measure">
+<h3>Concentration of Measure<a class="headerlink" href="#concentration-of-measure" title="Link to this heading">#</a></h3>
+<section id="tools-to-bound-uncertainty-in-reward-estimates">
+<h4>Tools to bound uncertainty in reward estimates:<a class="headerlink" href="#tools-to-bound-uncertainty-in-reward-estimates" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Hoeffding Inequality</strong>: Bounds deviation of sample mean from true mean</p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(\mathbb{P}(|\hat{\mu} - \mu| \geq \epsilon) \leq 2 \exp\left(-\frac{2n\epsilon^2}{\sigma^2}\right)\)</span></p>
+<ul class="simple">
+<li><p><strong>Subgaussian Random Variables</strong>: Rewards with bounded tail probabilities, enabling tight confidence bounds</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="why-this-matters">
+<h2>Why This Matters<a class="headerlink" href="#why-this-matters" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Enables rigorous analysis of algorithms (e.g., proving regret bounds)</p></li>
+<li><p>Guides selection of exploration strategies (e.g., how many times to try each arm)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="real-world-instances-of-bandits">
+<h2>Real-World Instances of Bandits<a class="headerlink" href="#real-world-instances-of-bandits" title="Link to this heading">#</a></h2>
+<section id="clinical-trials">
+<h3>1. Clinical Trials<a class="headerlink" href="#clinical-trials" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Arms</strong>: Treatment options (e.g., Drug A, Drug B, placebo)</p></li>
+<li><p><strong>Reward</strong>: Patient recovery/effectiveness</p></li>
+<li><p><strong>Goal</strong>: Minimize harm (regret) by quickly identifying the best treatment</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id7">
+<h2>Real-World Instances of Bandits<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<section id="recommendation-systems">
+<h3>2. Recommendation Systems<a class="headerlink" href="#recommendation-systems" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Arms</strong>: Items to recommend (e.g., movies, products)</p></li>
+<li><p><strong>Reward</strong>: User clicks/purchases</p></li>
+<li><p><strong>Goal</strong>: Maximize engagement by learning user preferences</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id8">
+<h2>Real-World Instances of Bandits<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<section id="pricing-optimization">
+<h3>3. Pricing Optimization<a class="headerlink" href="#pricing-optimization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Arms</strong>: Price points (e.g., <span class="math notranslate nohighlight">\(9.99, \)</span>14.99)</p></li>
+<li><p><strong>Reward</strong>: Revenue from sales</p></li>
+<li><p><strong>Goal</strong>: Maximize total revenue by finding optimal price</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id9">
+<h2>Real-World Instances of Bandits<a class="headerlink" href="#id9" title="Link to this heading">#</a></h2>
+<section id="social-media-advertising">
+<h3>4. Social Media Advertising<a class="headerlink" href="#social-media-advertising" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Arms</strong>: Ad versions (e.g., different visuals/copies)</p></li>
+<li><p><strong>Reward</strong>: Clicks/conversions</p></li>
+<li><p><strong>Goal</strong>: Maximize ad performance within budget</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="case-study-social-media-advertising">
+<h2>Case Study: Social Media Advertising<a class="headerlink" href="#case-study-social-media-advertising" title="Link to this heading">#</a></h2>
+<section id="problem-with-a-b-testing">
+<h3>Problem with A/B Testing<a class="headerlink" href="#problem-with-a-b-testing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In a campaign with 2M users:</p>
+<ul>
+<li><p>A/B testing exposes 1M users to each version</p></li>
+<li><p>Wastes ~100K impressions on the inferior version</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="mab-algorithm-advantage-e-g-klucb">
+<h3>MAB Algorithm Advantage (e.g., KLUCB)<a class="headerlink" href="#mab-algorithm-advantage-e-g-klucb" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Adapts dynamically: Reduces exposure to poor versions</p></li>
+<li><p>Exposes only ~5K users to the inferior version</p></li>
+<li><p>Superior cumulative reward over time</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="performance-comparison-a-b-testing-vs-bandits">
+<h2>Performance Comparison: A/B Testing vs. Bandits<a class="headerlink" href="#performance-comparison-a-b-testing-vs-bandits" title="Link to this heading">#</a></h2>
+<p><img alt="Performance Chart Description: Bandit algorithms quickly shift to better options, outperforming A/B testing which wastes resources on inferior versions" src="https://conversion-uplift.co.uk/wp-content/uploads/2016/11/AB-Testing-vs-Bandit-Selection-Chart-1024x666.jpg" /></p>
+</section>
+<hr class="docutils" />
+<section id="id10">
+<h2>Performance Comparison: A/B Testing vs. Bandits<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Bandits</strong>: Lower regret by balancing exploration and exploitation</p></li>
+<li><p><strong>A/B Testing</strong>: Higher regret due to fixed exploration phase</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="variants-of-bandit-problems">
+<h2>Variants of Bandit Problems<a class="headerlink" href="#variants-of-bandit-problems" title="Link to this heading">#</a></h2>
+<section id="contextual-bandits">
+<h3>1. Contextual Bandits<a class="headerlink" href="#contextual-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Incorporate context (e.g., user demographics) to personalize arm selection</p></li>
+<li><p>Example: Show different ads based on user location/age</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id11">
+<h2>Variants of Bandit Problems<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<section id="adversarial-bandits">
+<h3>2. Adversarial Bandits<a class="headerlink" href="#adversarial-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Rewards are chosen by an adversary (non-stochastic)</p></li>
+<li><p>Requires robust algorithms to handle worst-case scenarios</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id12">
+<h2>Variants of Bandit Problems<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<section id="combinatorial-bandits">
+<h3>3. Combinatorial Bandits<a class="headerlink" href="#combinatorial-bandits" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Select subsets of arms (e.g., a slate of ads)</p></li>
+<li><p>Extends to complex decision spaces</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="summary-key-takeaways">
+<h2>Summary &amp; Key Takeaways<a class="headerlink" href="#summary-key-takeaways" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Multi-armed bandits address uncertainty in sequential decision-making</p></li>
+<li><p>Regret quantifies suboptimality; minimizing regret is core goal</p></li>
+<li><p>Exploration-exploitation tradeoff is fundamental</p></li>
+<li><p>Bandit algorithms outperform A/B testing in dynamic environments</p></li>
+<li><p>Applications span advertising, healthcare, recommendations, and more</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="q-a">
+<h2>Q&amp;A<a class="headerlink" href="#q-a" title="Link to this heading">#</a></h2>
+<section id="discussion-topics">
+<h3>Discussion Topics<a class="headerlink" href="#discussion-topics" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>How to choose between exploration and exploitation in practice?</p></li>
+<li><p>What are the challenges in scaling bandit algorithms to 1000+ arms?</p></li>
+<li><p>How to handle non-stationary environments (e.g., changing user preferences)?</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Welcome to your Jupyter Book</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec2.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">2.Stochastic Multi-Armed Bandits</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#session-1-introduction-to-multi-armed-bandits">Session 1: Introduction to Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-making-with-uncertainty">Decision-Making with Uncertainty</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-challenge">Core Challenge</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-questions">Key Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-b-testing-detailed-look">A/B Testing: Detailed Look</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-a-b-testing">What is A/B Testing?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations-of-a-b-testing">Limitations of A/B Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-a-b-testing-to-multi-armed-bandits">From A/B Testing to Multi-Armed Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-analogy">The Analogy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-mab-framework">Multi-Armed Bandits (MAB) Framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formalizing-the-bandit-problem">Formalizing the Bandit Problem</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">Key Components</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Formalizing the Bandit Problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-definitions-regret">Key Definitions: Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-measure-of-suboptimality">Regret: Measure of Suboptimality</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-definition-and-core-idea">Regret: Definition and Core Idea</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-regret">What is Regret?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formal-definition-total-regret-after-n-rounds">Formal Definition (Total Regret after n rounds)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Regret: Definition and Core Idea</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition">Intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-observation">Key Observation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Regret Decomposition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-down-total-regret">Breaking Down Total Regret</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpretation">Interpretation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Regret Decomposition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-two-armed-bandit">Example: Two-Armed Bandit</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#properties-and-bounds-of-regret">Properties and Bounds of Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-over-time">Regret Over Time</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-dependent-vs-instance-independent-bounds">Instance-Dependent vs. Instance-Independent Bounds</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Properties and Bounds of Regret</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-bounds">Lower Bounds</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaway">Key Takeaway</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exploration-exploitation-tradeoff">Exploration-Exploitation Tradeoff</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-dilemma">Core Dilemma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-epsilon-greedy-algorithm">Example: Epsilon-Greedy Algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-basics-for-bandits">Probability Basics for Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concentration-of-measure">Concentration of Measure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tools-to-bound-uncertainty-in-reward-estimates">Tools to bound uncertainty in reward estimates:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-matters">Why This Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#real-world-instances-of-bandits">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clinical-trials">1. Clinical Trials</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recommendation-systems">2. Recommendation Systems</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pricing-optimization">3. Pricing Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Real-World Instances of Bandits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#social-media-advertising">4. Social Media Advertising</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#case-study-social-media-advertising">Case Study: Social Media Advertising</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-with-a-b-testing">Problem with A/B Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mab-algorithm-advantage-e-g-klucb">MAB Algorithm Advantage (e.g., KLUCB)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison-a-b-testing-vs-bandits">Performance Comparison: A/B Testing vs. Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Performance Comparison: A/B Testing vs. Bandits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants-of-bandit-problems">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contextual-bandits">1. Contextual Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adversarial-bandits">2. Adversarial Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Variants of Bandit Problems</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#combinatorial-bandits">3. Combinatorial Bandits</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-key-takeaways">Summary &amp; Key Takeaways</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion-topics">Discussion Topics</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

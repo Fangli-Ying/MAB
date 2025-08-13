@@ -1,2 +1,0 @@
-# MAB
-Multi Armed Bandit

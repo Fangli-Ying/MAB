@@ -1,11 +1,6 @@
 # Welcome to your Jupyter Book
 
-This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out [the Jupyter Book documentation](https://jupyterbook.org) for more information.
-
-Check out the content pages bundled with this sample book to see more.
+This online textbook provides a comprehensive introduction of Multi-Armed Bandits (MAB), covering theoretical foundations, algorithm design, and advanced applications in sequential decision-making under uncertainty. Written by Fangli Ying (ECUST) for Teaching Fellow in a Summer Camp with Prof. Osman Yağan (CMU), it progresses from stochastic bandit fundamentals (UCB, ETC algorithms) to Bayesian methods (Thompson Sampling), structured bandits with hidden parameters, and adversarial settings, featuring rigorous mathematical analysis, regret bounds, and real-world case studies in recommendation systems, wireless communications, and healthcare.
 
 ```{tableofcontents}
 ```

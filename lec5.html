@@ -1,0 +1,791 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>5. Multi-Armed Bandits with Probing &#8212; Multi-Armed Bandits</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lec5';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Thompson Sampling" href="lec6.html" />
+    <link rel="prev" title="4. Principles and Performance Comparison of ETC and UCB" href="lec4.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Multi-Armed Bandits - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Multi-Armed Bandits - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lec1.html">1. Introduction to Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec2.html">2.Stochastic Multi-Armed Bandits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec3.html">3. Explore-then-Commit (ETC) &amp; Upper-Confidence-Bound (UCB)*</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec4.html">4. Principles and Performance Comparison of ETC and UCB</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">5. Multi-Armed Bandits with Probing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec6.html">6. Thompson Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec7.html">7. A Unified Approach to Translate Classic Bandit Algorithms to the Structured Bandit Setting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lec8.html">8. Full Feedback and Adversarial Costs &amp; Adversarial Bandits</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Flec5.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/lec5.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>5. Multi-Armed Bandits with Probing</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-with-probing-paper-explained-by-dr-fangli-ying">Multi-Armed Bandits with Probing: Paper Explained by Dr. Fangli Ying</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucbp-and-its-theoretical-guarantees">UCBP and Its Theoretical Guarantees</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction-to-multi-armed-bandits-mab">Introduction to Multi-Armed Bandits (MAB)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-applications">Key Applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Key Applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-formulation">Problem Formulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimal-action-and-regret-definition">Optimal Action and Regret Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-algorithm-ucb-naive-probe">Baseline Algorithm: UCB-naive-probe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#proposed-algorithm-ucbp-ucb-with-probes">Proposed Algorithm: UCBP (UCB with Probes)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucbp-decision-process-algorithm-2">UCBP Decision Process (Algorithm 2)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-point-regret-analysis">Reference Point Regret Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gap-independent-regret-bound-for-ucbp">Gap-Independent Regret Bound for UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gap-dependent-regret-bound-for-ucbp">Gap-Dependent Regret Bound for UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#order-optimality-of-ucbp">Order Optimality of UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#empirical-results-movielens-dataset">Empirical Results (MovieLens Dataset)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributions-and-future-work">Contributions and Future Work</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="multi-armed-bandits-with-probing">
+<h1>5. Multi-Armed Bandits with Probing<a class="headerlink" href="#multi-armed-bandits-with-probing" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="multi-armed-bandits-with-probing-paper-explained-by-dr-fangli-ying">
+<h2>Multi-Armed Bandits with Probing: Paper Explained by Dr. Fangli Ying<a class="headerlink" href="#multi-armed-bandits-with-probing-paper-explained-by-dr-fangli-ying" title="Link to this heading">#</a></h2>
+<section id="ucbp-and-its-theoretical-guarantees">
+<h3>UCBP and Its Theoretical Guarantees<a class="headerlink" href="#ucbp-and-its-theoretical-guarantees" title="Link to this heading">#</a></h3>
+<p><strong>Authors</strong>: Eray Can Elumar, Cem Tekin, Osman Yağan<br />
+<strong>Institution</strong>: Carnegie Mellon University &amp; Bilkent University</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="introduction-to-multi-armed-bandits-mab">
+<h2>Introduction to Multi-Armed Bandits (MAB)<a class="headerlink" href="#introduction-to-multi-armed-bandits-mab" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Classic MAB Problem</strong>: A decision-maker (agent) selects from <span class="math notranslate nohighlight">\(K\)</span> arms, each with an unknown reward distribution.</p></li>
+<li><p><strong>Goal</strong>: Maximize cumulative reward over <span class="math notranslate nohighlight">\(T\)</span> rounds by balancing <em>exploration</em> (learning arm rewards) and <em>exploitation</em> (choosing known high-reward arms).</p></li>
+<li><p><strong>Regret</strong>: Traditional regret = (Optimal arm’s total reward) - (Agent’s total reward).</p></li>
+<li><p><strong>Novel Extension: MAB with Probing</strong></p>
+<ul>
+<li><p>Agent can <em>probe</em> an arm (observe its reward) at cost <span class="math notranslate nohighlight">\(c \geq 0\)</span> before deciding to pull it or a backup arm.</p></li>
+<li><p>Probing adds flexibility but complicates action space (now <span class="math notranslate nohighlight">\(O(K^2)\)</span> actions).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="key-applications">
+<h2>Key Applications<a class="headerlink" href="#key-applications" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Hyperparameter Optimization</strong>:</p>
+<ul class="simple">
+<li><p>“Pull” = Run a model with a hyperparameter setting (no oversight).</p></li>
+<li><p>“Probe” = Run with expert supervision (terminate poor runs early, paying <span class="math notranslate nohighlight">\(c\)</span> for expert time).</p></li>
+</ul>
+</li>
+<li><p><strong>Online Learning with ML Advice</strong>:</p>
+<ul class="simple">
+<li><p>Probing = Using ML predictions to estimate rewards (cost <span class="math notranslate nohighlight">\(c\)</span> = computation expense).</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h2>Key Applications<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<ol class="arabic simple" start="3">
+<li><p><strong>Wireless Communications</strong>:</p>
+<ul class="simple">
+<li><p>Probing = Sending small packets to check channel quality before transmission.</p></li>
+</ul>
+</li>
+<li><p><strong>Healthcare (ER Queuing)</strong>:</p>
+<ul class="simple">
+<li><p>Probing = Preliminary tests to assess patient urgency; “pull” = full treatment.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="problem-formulation">
+<h2>Problem Formulation<a class="headerlink" href="#problem-formulation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Arms</strong>: <span class="math notranslate nohighlight">\(K\)</span> arms, each with reward distribution <span class="math notranslate nohighlight">\(\Gamma_i\)</span>, mean <span class="math notranslate nohighlight">\(\mu_i\)</span>.</p></li>
+<li><p><strong>Actions</strong>:</p>
+<ul>
+<li><p><em>Pull</em>: Directly pull arm <span class="math notranslate nohighlight">\(i\)</span>, get reward <span class="math notranslate nohighlight">\(r_i \sim \Gamma_i\)</span>. Denoted as <span class="math notranslate nohighlight">\((i, \emptyset)\)</span>.</p></li>
+<li><p><em>Probe</em>: Choose probe arm <span class="math notranslate nohighlight">\(i\)</span> and backup arm <span class="math notranslate nohighlight">\(j \neq i\)</span>:</p>
+<ul>
+<li><p>Observe <span class="math notranslate nohighlight">\(r_i \sim \Gamma_i\)</span>.</p></li>
+<li><p>Pull <span class="math notranslate nohighlight">\(i\)</span> (reward <span class="math notranslate nohighlight">\(r_i - c\)</span>) if <span class="math notranslate nohighlight">\(r_i\)</span> is good; else pull <span class="math notranslate nohighlight">\(j\)</span> (reward <span class="math notranslate nohighlight">\(r_j - c\)</span>). Denoted as <span class="math notranslate nohighlight">\((i, j)\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Action Set</strong>: <span class="math notranslate nohighlight">\(A = A_s \cup A_p\)</span>, where <span class="math notranslate nohighlight">\(A_s\)</span> (pulls) has size <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\(A_p\)</span> (probes) has size <span class="math notranslate nohighlight">\(K(K-1)\)</span>. Total: <span class="math notranslate nohighlight">\(|A| = K^2\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="optimal-action-and-regret-definition">
+<h2>Optimal Action and Regret Definition<a class="headerlink" href="#optimal-action-and-regret-definition" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Optimal Action</strong>: Maximizes expected reward <span class="math notranslate nohighlight">\(\nu^*\)</span>, where:</p>
+<ul>
+<li><p>For pull <span class="math notranslate nohighlight">\((i, \emptyset)\)</span>: <span class="math notranslate nohighlight">\(\nu_{(i, \emptyset)} = \mu_i\)</span>.</p></li>
+<li><p>For probe <span class="math notranslate nohighlight">\((i, j)\)</span>: <span class="math notranslate nohighlight">\(\nu_{(i, j)} = \mathbb{E}[\max(r_i, \mu_j)] - c\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Regret Definitions</strong>:</p>
+<ul>
+<li><p>Empirical cumulative regret: <span class="math notranslate nohighlight">\(\hat{R}_T = T\nu^* - \sum_{t=1}^T r(t)\)</span>.</p></li>
+<li><p>Expected cumulative regret: <span class="math notranslate nohighlight">\(R_T = \mathbb{E}[\hat{R}_T]\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Key Innovation</strong>: Regret is relative to <span class="math notranslate nohighlight">\(\nu^*\)</span> (optimal action’s reward), not just the best arm’s mean <span class="math notranslate nohighlight">\(\mu_1\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="baseline-algorithm-ucb-naive-probe">
+<h2>Baseline Algorithm: UCB-naive-probe<a class="headerlink" href="#baseline-algorithm-ucb-naive-probe" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Idea</strong>: Treats each probe action as a “super arm” with a fixed reference point (threshold for pulling the probe arm).</p></li>
+<li><p><strong>Action Space</strong>: Includes triples <span class="math notranslate nohighlight">\((i, j, d_l)\)</span>, where <span class="math notranslate nohighlight">\(d_l \in D\)</span> (discrete reward support) is the reference point.</p></li>
+<li><p><strong>Steps</strong>: 1. At round <span class="math notranslate nohighlight">\(t\)</span>, select the super arm with the highest UCB index.
+2. If probing: observe <span class="math notranslate nohighlight">\(r_i\)</span>; pull <span class="math notranslate nohighlight">\(i\)</span> if <span class="math notranslate nohighlight">\(r_i \geq d_l\)</span>, else pull <span class="math notranslate nohighlight">\(j\)</span> (reward <span class="math notranslate nohighlight">\(-c\)</span>).</p></li>
+<li><p><strong>Regret Bounds</strong>:</p>
+<ul>
+<li><p>Gap-independent: <span class="math notranslate nohighlight">\(O(K\sqrt{T \log T})\)</span>.</p></li>
+<li><p>Gap-dependent: <span class="math notranslate nohighlight">\(O(K^2 \log T)\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="proposed-algorithm-ucbp-ucb-with-probes">
+<h2>Proposed Algorithm: UCBP (UCB with Probes)<a class="headerlink" href="#proposed-algorithm-ucbp-ucb-with-probes" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Goal</strong>: Reduce regret by leveraging the structure of probe actions and optimal reference points.</p></li>
+<li><p><strong>Core Insight</strong>: Use UCB indices to balance exploration/exploitation and dynamically set reference points.</p></li>
+<li><p><strong>UCB Indices Calculation</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Pull action</strong>: <span class="math notranslate nohighlight">\(U_i(t) = \hat{\mu}_i(t) + \sqrt{\frac{3 \log t}{N_i(t)}}\)</span>,
+where <span class="math notranslate nohighlight">\(\hat{\mu}_i(t)\)</span> = empirical mean of <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(N_i(t)\)</span> = times <span class="math notranslate nohighlight">\(i\)</span> was observed.</p></li>
+<li><p><strong>Probe action</strong>: <span class="math notranslate nohighlight">\(P_{(i,j)}(t) = \hat{\nu}_{(i,j)}(t) + \sqrt{\frac{3 \log t}{N_i(t)}} + \sqrt{\frac{3 \log t}{N_j(t)}}\)</span>,
+where <span class="math notranslate nohighlight">\(\hat{\nu}_{(i,j)}(t)\)</span> = empirical mean of <span class="math notranslate nohighlight">\(\max(r_i, \hat{\mu}_j) - c\)</span>.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="ucbp-decision-process-algorithm-2">
+<h2>UCBP Decision Process (Algorithm 2)<a class="headerlink" href="#ucbp-decision-process-algorithm-2" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Initialize: Sample each arm once to estimate initial means.</p></li>
+<li><p>For each round <span class="math notranslate nohighlight">\(t\)</span>:
+a. Compute <span class="math notranslate nohighlight">\(U_i(t)\)</span> (pull indices) and <span class="math notranslate nohighlight">\(P_{(i,j)}(t)\)</span> (probe indices).
+b. Choose action with highest index:</p>
+<ul class="simple">
+<li><p>If pull: Pull arm <span class="math notranslate nohighlight">\(i^* = \arg\max_i U_i(t)\)</span>, get <span class="math notranslate nohighlight">\(r(t) = r_{i^*}\)</span>.</p></li>
+<li><p>If probe: Probe arm <span class="math notranslate nohighlight">\(j_t\)</span>, observe <span class="math notranslate nohighlight">\(r_{j_t}\)</span>.</p>
+<ul>
+<li><p>Pull <span class="math notranslate nohighlight">\(j_t\)</span> (reward <span class="math notranslate nohighlight">\(r_{j_t} - c\)</span>) if <span class="math notranslate nohighlight">\(r_{j_t} &gt; U_{k_t}(t)\)</span> (backup arm’s UCB).</p></li>
+<li><p>Else pull backup arm <span class="math notranslate nohighlight">\(k_t\)</span> (reward <span class="math notranslate nohighlight">\(r_{k_t} - c\)</span>).</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Update <span class="math notranslate nohighlight">\(\hat{\mu}_i\)</span>, <span class="math notranslate nohighlight">\(N_i\)</span>, and indices.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="regret-decomposition">
+<h2>Regret Decomposition<a class="headerlink" href="#regret-decomposition" title="Link to this heading">#</a></h2>
+<p>Total regret <span class="math notranslate nohighlight">\(R_T\)</span> splits into two parts:</p>
+<ol class="arabic simple">
+<li><p><strong>Action Selection Regret</strong>: Loss from choosing suboptimal actions (e.g., pulling a bad arm instead of probing).</p>
+<ul class="simple">
+<li><p>For action <span class="math notranslate nohighlight">\(a\)</span>, gap <span class="math notranslate nohighlight">\(\Delta_a = \nu^* - \nu_a\)</span>; total loss from suboptimal actions is <span class="math notranslate nohighlight">\(\sum_{a \neq a^*} \Delta_a \cdot (\text{times } a \text{ is chosen})\)</span>.</p></li>
+</ul>
+</li>
+<li><p><strong>Reference Point Regret</strong>: Loss from using estimated thresholds (instead of true <span class="math notranslate nohighlight">\(\mu_j\)</span>) to decide post-probe.</p>
+<ul class="simple">
+<li><p>Defined as <span class="math notranslate nohighlight">\(R_{ref}(T) = \sum_{t=1}^T |\tilde{\mu}_j(t) - \mu_j| \cdot \mathbb{P}(r_i \in [\min(\mu_j, \tilde{\mu}_j(t)), \max(\mu_j, \tilde{\mu}_j(t))])\)</span>,
+where <span class="math notranslate nohighlight">\(\tilde{\mu}_j(t)\)</span> = estimated mean of <span class="math notranslate nohighlight">\(j\)</span>.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="reference-point-regret-analysis">
+<h2>Reference Point Regret Analysis<a class="headerlink" href="#reference-point-regret-analysis" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Lemma IV.3</strong>:
+a. For arbitrary bounded rewards: <span class="math notranslate nohighlight">\(R_{ref}(T) = O(\sqrt{K T \log T})\)</span>.
+b. For discrete rewards (support <span class="math notranslate nohighlight">\(D\)</span>): <span class="math notranslate nohighlight">\(R_{ref}(T) = O(K \log T)\)</span>,
+where <span class="math notranslate nohighlight">\(\gamma_i = \min |d_l - \mu_i|\)</span> (gap between <span class="math notranslate nohighlight">\(\mu_i\)</span> and nearest support point).</p></li>
+<li><p><strong>Rationale</strong>: Discrete rewards limit the range of estimation errors, making <span class="math notranslate nohighlight">\(R_{ref}(T)\)</span> smaller.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="gap-independent-regret-bound-for-ucbp">
+<h2>Gap-Independent Regret Bound for UCBP<a class="headerlink" href="#gap-independent-regret-bound-for-ucbp" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Theorem IV.1</strong>: Under Assumption 1 (<span class="math notranslate nohighlight">\(\mathbb{P}(r_i \leq \mu_j) \geq \epsilon &gt; 0\)</span>):</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[ R_T \leq \frac{4\sqrt{6 K T \log T}}{\epsilon} + R_{ref}(T) + \frac{2\pi^2 K^2}{3} + K \]</div>
+<ul class="simple">
+<li><p><strong>Result</strong>: Combining with <span class="math notranslate nohighlight">\(R_{ref}(T) = O(\sqrt{K T \log T})\)</span>, total gap-independent regret is <span class="math notranslate nohighlight">\(O(\sqrt{K T \log T})\)</span>.</p></li>
+<li><p><strong>Significance</strong>: Scales better than UCB-naive-probe (<span class="math notranslate nohighlight">\(O(K\sqrt{T \log T})\)</span>) for large <span class="math notranslate nohighlight">\(K\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="gap-dependent-regret-bound-for-ucbp">
+<h2>Gap-Dependent Regret Bound for UCBP<a class="headerlink" href="#gap-dependent-regret-bound-for-ucbp" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Theorem IV.2</strong>: For discrete rewards, gap-dependent regret satisfies:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[ R_T \leq \sum_{i=1}^K \frac{12 \log T}{\delta_i} + R_{ref}(T) + \frac{2\pi^2 K^2}{3} + K \]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta_i\)</span> is a gap parameter related to suboptimal actions.</p>
+<ul class="simple">
+<li><p><strong>Result</strong>: With <span class="math notranslate nohighlight">\(R_{ref}(T) = O(K \log T)\)</span>, total gap-dependent regret is <span class="math notranslate nohighlight">\(O(K \log T)\)</span>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="order-optimality-of-ucbp">
+<h2>Order Optimality of UCBP<a class="headerlink" href="#order-optimality-of-ucbp" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Lower Bound (Theorem IV.4)</strong>: For any algorithm, regret is at least <span class="math notranslate nohighlight">\(\Omega(K \log T)\)</span>.</p></li>
+<li><p><strong>Conclusion</strong>: UCBP’s gap-dependent regret <span class="math notranslate nohighlight">\(O(K \log T)\)</span> matches the lower bound, making it <em>order-optimal</em>.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="empirical-results-movielens-dataset">
+<h2>Empirical Results (MovieLens Dataset)<a class="headerlink" href="#empirical-results-movielens-dataset" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Setup</strong>: 18 arms (movie genres), rewards = user ratings (1-5). Compare UCBP vs. UCB-naive-probe over 500,000 rounds.</p></li>
+<li><p><strong>Key Finding</strong>: UCBP consistently outperforms UCB-naive-probe across probing costs <span class="math notranslate nohighlight">\(c = 0, 0.3, 1\)</span>.</p>
+<ul>
+<li><p>Both show logarithmic regret growth, but UCBP has smaller cumulative regret.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="contributions-and-future-work">
+<h2>Contributions and Future Work<a class="headerlink" href="#contributions-and-future-work" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Contributions</strong>:</p>
+<ol class="arabic simple">
+<li><p>First MAB model with costly probing for bounded rewards.</p></li>
+<li><p>UCBP algorithm with gap-independent regret <span class="math notranslate nohighlight">\(O(\sqrt{K T \log T})\)</span> and order-optimal gap-dependent regret <span class="math notranslate nohighlight">\(O(K \log T)\)</span>.</p></li>
+<li><p>Novel regret definition accounting for optimal probe/pull actions.</p></li>
+</ol>
+</li>
+<li><p><strong>Future Work</strong>:</p>
+<ul>
+<li><p>Extend to noisy probes (instead of exact reward observations).</p></li>
+<li><p>Handle correlated arm rewards.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="q-a">
+<h2>Q&amp;A<a class="headerlink" href="#q-a" title="Link to this heading">#</a></h2>
+<p><strong>Thank You!</strong></p>
+<p>For details, see full paper: <a class="reference external" href="https://users.ece.cmu.edu/~oyagan/Journals/ProbingBandits.pdf">Multi-armed bandits with costly probes</a></p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="lec4.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">4. Principles and Performance Comparison of ETC and UCB</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="lec6.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">6. Thompson Sampling</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-armed-bandits-with-probing-paper-explained-by-dr-fangli-ying">Multi-Armed Bandits with Probing: Paper Explained by Dr. Fangli Ying</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ucbp-and-its-theoretical-guarantees">UCBP and Its Theoretical Guarantees</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction-to-multi-armed-bandits-mab">Introduction to Multi-Armed Bandits (MAB)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-applications">Key Applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Key Applications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-formulation">Problem Formulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optimal-action-and-regret-definition">Optimal Action and Regret Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-algorithm-ucb-naive-probe">Baseline Algorithm: UCB-naive-probe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#proposed-algorithm-ucbp-ucb-with-probes">Proposed Algorithm: UCBP (UCB with Probes)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ucbp-decision-process-algorithm-2">UCBP Decision Process (Algorithm 2)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regret-decomposition">Regret Decomposition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-point-regret-analysis">Reference Point Regret Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gap-independent-regret-bound-for-ucbp">Gap-Independent Regret Bound for UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gap-dependent-regret-bound-for-ucbp">Gap-Dependent Regret Bound for UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#order-optimality-of-ucbp">Order Optimality of UCBP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#empirical-results-movielens-dataset">Empirical Results (MovieLens Dataset)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributions-and-future-work">Contributions and Future Work</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#q-a">Q&amp;A</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Dr. Fangli Ying (ECUST) & Dr. Osman Yagan (CMU)
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Fangli Ying &amp; Osman Yagan.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
